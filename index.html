@@ -41,6 +41,14 @@
 		border-left: 1px solid #444; border-top: 1px solid #444; 
 		border-right: 1px solid #333; border-bottom: 1px solid #333;
 		background-color: #3d3d3d;
+		position: relative;
+	}
+	#login {
+		position: absolute;
+		text-align: center;
+		top: 370px;
+		width: 800px;
+		font-size: 1.7em;
 	}
 		</style>
 		<!--[if lt IE 9]>
@@ -51,12 +59,13 @@
 		<script src="google-oauth2.js" type="text/javascript"></script>
 		<script>
 
+function getProcessing() {
+  return Processing.getInstanceById('location1');
+}
 
-		</script>
-		<script type="text/processing" data-processing-target="location1">
 $(function() {
-  //initGO2();
-  gethistory("ya29.AHES6ZQHcOBwkl3unZ1UkS4yPVCIC03uFMjeHGAgyDB8VAZgaM1Z1Q");
+  initGO2();
+  //gethistory("ya29.AHES6ZQHcOBwkl3unZ1UkS4yPVCIC03uFMjeHGAgyDB8VAZgaM1Z1Q");
 });
 
 function initGO2() {
@@ -64,25 +73,73 @@ function initGO2() {
 	    scope: ["https://www.googleapis.com/auth/latitude.all.best"]});
   GO2.onlogin = gethistory;
   GO2.login(false, true);
+}
+
+function hideLogin() {
+  $("#login").hide();
+}
+
+function startLogin() {
   GO2.login();
 }
 
+function startDemo() {
+  hideLogin();
+  demo();
+}
+
+downloadprogress = new Object();
+downloadprogress.isdownloading = false;
+downloadprogress.finished = false;
 
 function gethistory(token) {
   console.log("LOGGED IN "+token);
-  jQuery.getJSON("https://www.googleapis.com/latitude/v1/location?access_token="+token, function(data) {
-    console.log(data);
-    parse(data.data.items);
+  hideLogin();
+
+  downloadprogress.isdownloading = true;
+  downloadprogress.counter = 0;
+  downloadprogress.eventcount = 0;
+  downloadprogress.smallest = new Date().getTime();
+  getHistoryUntil(token, new Date().getTime(), [], downloadprogress, function(data) {
+    parse(data);
+    downloadprogress.isdownloading = false;
+    downloadprogress.finished = true;
   });
 }
-			
-/*
-jQuery.getJSON("latitude.json",function(data) {
-//jQuery.getJSON("test.json",function(data) {
-//jQuery.getJSON("firstbatch.json",function(data) {
-  parse(data.data.items);
-});
-*/
+
+function getHistoryUntil(token, until, accumulated, progress, finished) {
+  jQuery.getJSON("https://www.googleapis.com/latitude/v1/location?granularity=best&max-time="+until+"&max-results=1000&access_token="+token, function(data) {
+    console.log("until: "+until);
+    if (data.data.items && progress.counter < 50) {
+      console.log(data);
+      //data.data.items.reverse();
+      var smallest = data.data.items[data.data.items.length-1].timestampMs;
+      //console.log(smallest);
+      progress.smallest = new Number(smallest);
+      progress.eventcount = accumulated.length;
+      console.log(" on the "+progress.counter+" iteration. smallest is "+smallest+" accumulated "+accumulated.length);
+      progress.counter += 1;
+      accumulated = accumulated.concat(data.data.items);
+      getHistoryUntil(token, smallest, accumulated, progress, finished);
+    } else {
+      finished(accumulated);
+    }
+  });
+}
+
+
+		</script>
+		<script type="text/processing" data-processing-target="location1">
+
+demo = function() {
+  //jQuery.getJSON("latitude.json",function(data) {
+  jQuery.getJSON("test.json",function(data) {
+  //jQuery.getJSON("firstbatch.json",function(data) {
+    data.data.items.reverse();
+    parse(data.data.items);
+  });
+};
+//*/
 
 timeline = new History();
 weeks = [];
@@ -90,7 +147,7 @@ weektimelines = [];
 activity = [];
 dataisready = false;
 
-void parse(var data) {
+parse = function(var data) {
   //for (var x=0; x<700; x++) data.pop();
   data.reverse();
   //console.log(data);
@@ -104,7 +161,7 @@ void parse(var data) {
   timeline.setHistory(data);
   initActivity();
   dataisready = true;
-}
+};
 
 function processAll(var data) {
   for (index in data) processItem(data[index]);
@@ -389,9 +446,20 @@ void drawFps() {
 }
 
 void drawLoading() {
+  pushStyle();
   fill(othercolor, 100);
+  textFont(font, 36);
   textAlign(CENTER,CENTER);
-  text("Loading...", width/2, height/2);
+  if (downloadprogress.isdownloading) {
+    text("Downloading...", width/2, height/2);
+    textFont(font, 20);
+    text(""+new Date(downloadprogress.smallest).toDateString()+" - now ("+downloadprogress.eventcount+" events)", width/2, height/2+36);
+  } else if (downloadprogress.finished) {
+    text("Thinking...", width/2, height/2);
+  } else {
+
+  }
+  popStyle();
 }
 
 void updateTime() {
@@ -623,10 +691,18 @@ function getDayText(var day) {
 				<noscript>
 					<p>JavaScript is required to view the contents of this page.</p>
 				</noscript>
+				<div id="login">
+				  <p>
+				  Want to visualize your habits? -  <a href="javascript:startLogin()">Log In Using Google Latitude</a> to try it out.
+				  </p>
+				  <p>
+				  Want to see a demo? <a href="javascript:startDemo()">Watch</a>
+				  </p>
+				</div>
 	    	</div>
-			<h1>RJ's Locations</h1>
+			<h1>Location Visualization</h1>
 			<p id="description">
-			This animation will demonstrate the patterns I exhibit both in time and space, over the course of 6 weeks.
+			  See your location habits. Log in using google latitude to see the patterns of places you go with the patterns of when you're active.
 			</p>
 			<p>
 			Built with <a href="http://processing.org" title="Processing">Processing</a>
