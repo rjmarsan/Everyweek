@@ -48,13 +48,41 @@
 		<![endif]-->
 		<script src="processing.js" type="text/javascript"></script>
 		<script src="jquery.js" type="text/javascript"></script>
+		<script src="google-oauth2.js" type="text/javascript"></script>
+		<script>
+
+
+		</script>
 		<script type="text/processing" data-processing-target="location1">
+$(function() {
+  //initGO2();
+  gethistory("ya29.AHES6ZQHcOBwkl3unZ1UkS4yPVCIC03uFMjeHGAgyDB8VAZgaM1Z1Q");
+});
+
+function initGO2() {
+  GO2.init({client_id:"471207177107.apps.googleusercontent.com",
+	    scope: ["https://www.googleapis.com/auth/latitude.all.best"]});
+  GO2.onlogin = gethistory;
+  GO2.login(false, true);
+  GO2.login();
+}
+
+
+function gethistory(token) {
+  console.log("LOGGED IN "+token);
+  jQuery.getJSON("https://www.googleapis.com/latitude/v1/location?access_token="+token, function(data) {
+    console.log(data);
+    parse(data.data.items);
+  });
+}
 			
-//jQuery.getJSON("latitude.json",function(data) {
-jQuery.getJSON("test.json",function(data) {
+/*
+jQuery.getJSON("latitude.json",function(data) {
+//jQuery.getJSON("test.json",function(data) {
 //jQuery.getJSON("firstbatch.json",function(data) {
   parse(data.data.items);
 });
+*/
 
 timeline = new History();
 weeks = [];
@@ -64,12 +92,14 @@ dataisready = false;
 
 void parse(var data) {
   //for (var x=0; x<700; x++) data.pop();
-  //data.reverse();
+  data.reverse();
   //console.log(data);
   processAll(data);
+  console.log(data);
   //findPlaces(data, 0.003);
   //drawonce();
   weeks = makeWeekLists(data);
+  console.log(weeks);
   weektimelines = makeWeekTimelines(weeks);
   timeline.setHistory(data);
   initActivity();
@@ -119,6 +149,7 @@ function makeWeekLists(var history) {
     current_day = item.dayofweek;
     current_week.push(item);
   }
+  weeks.push(current_week);
   return weeks;
 }
 
@@ -135,7 +166,12 @@ function makeWeekTimelines(var weeks) {
     var week = weeks[index];
     var timeline = new History();
     timeline.setHistory(week);
-    timelines.push(timeline);
+    if (timeline.areAnyInRange()) {
+      timelines.push(timeline);
+    } else {
+      //println("Have to remove week "+index);
+    }
+  
   }
   return timelines;
 }
@@ -210,7 +246,7 @@ class History {
   }
 
   boolean isOkToInterp() {
-    return (this.nextitem && this.duration < 1000*60*60*3 && this.curitem.timestampMs <= this.now);
+    return (this.nextitem && this.duration < 1000*60*60*6 && this.curitem.timestampMs <= this.now);
   }
   boolean isAtEnd() {
     return (this.now - this.firsttime) > (1000*60*60*24*7);
@@ -236,7 +272,20 @@ class History {
     for (i in this.history) {
       var x = getX(this.history[i].longitude);
       var y = getY(this.history[i].latitude);
+      if (x > 0 && x < width && y > 0 && y < height)
+	return true;
     }
+    return false;
+  }
+
+  boolean isInRange() {
+    var x = this.curlat;//getX(this.curitem.longitude);
+    var y = this.curlon;//getY(this.curitem.latitude);
+    if (x > 0 && x < width && y > 0 && y < height)
+      return true;
+    else
+      return false;
+
   }
 
 
@@ -283,6 +332,7 @@ Time of the week indication to show when through the week it's at
 
 
 
+var currentweek;
 PGraphics places_graphics;
 PGraphics me_secondary;
 PGraphics me_graphics;
@@ -320,7 +370,7 @@ var g_lat_scale = 0.05; //2;
 void draw() {
   if (alldone) {
     
-  } else if (dataisready) {
+  } else if (dataisready && weektimelines.length > 0) {
     background(0);
     updateTime();
     //drawPlaces(lg);
@@ -356,12 +406,6 @@ void updateTime() {
     }
     var isdone = false;
     timeline.update(UPDATE_TIME);
-    if (timeline.distance < 1000) {
-      //don't add if we fly somewhere. then we look very active.
-      var day = new Date(timeline.now);
-      var index = day.getDay()*24 + day.getHours();
-      activity[index] += timeline.distance;
-    }
     for (index in weektimelines) {
       if (index < max_weeks) {
 	var tl = weektimelines[index];
@@ -372,6 +416,13 @@ void updateTime() {
 	  isdone = true;
 	}
       }
+    }
+    currentweek = weektimelines[max_weeks - 1];
+    if (currentweek.distance < 100000 && currentweek.isInRange()) {
+      //don't add if we fly somewhere. then we look very active.
+      var day = new Date(timeline.now);
+      var index = day.getDay()*24 + day.getHours();
+      activity[index] += currentweek.distance;
     }
     if (isdone) {
       max_weeks += 1;
@@ -384,20 +435,20 @@ void updateTime() {
 
 }
 
-var lasthistory;
+int lasthistory;
+int numcircles = 0;
 void drawHistory(PGraphics p) {
+  var timeline = currentweek;//weektimelines[max_weeks-1];
   p.beginDraw();
-  if (timeline.isOkToInterp() && (timeline.isnewlocation || lasthistory >= 4) ) {
-    var lon, lat;
-    if (timeline.isnewlocation) {
-      lon = getX(timeline.curitem.longitude);
-      lat = getY(timeline.curitem.latitude);
-    }
+  if (timeline.curitem && (timeline.isnewlocation || lasthistory >= 1) ) {
+    float lon, lat;
+    lon = getX(timeline.curitem.longitude);
+    lat = getY(timeline.curitem.latitude);
     p.noStroke();
     if (timeline.curitem.weekend) {
-      p.fill(weekendcolor,8);
+      p.fill(weekendcolor,5);
     } else {
-      p.fill(weekdaycolor,8);
+      p.fill(weekdaycolor,5);
     }
     //float radius = 2+pow(1.5, random(-120, 12));
     float radius = 2+pow(1.5, random(-120, 12));
@@ -410,8 +461,10 @@ void drawHistory(PGraphics p) {
     }
     p.ellipse(lon,lat, 3, 3); 
     lasthistory = 0;
+    numcircles += 1;
+    //println("Num circles: "+numcircles);
   } else {
-    lasthistory += 0; //CHANGE BACK
+    lasthistory += 1; //CHANGE BACK
   }
 
   p.endDraw();
