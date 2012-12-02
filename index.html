@@ -65,7 +65,7 @@ dataisready = false;
 void parse(var data) {
   //for (var x=0; x<700; x++) data.pop();
   //data.reverse();
-  console.log(data);
+  //console.log(data);
   processAll(data);
   //findPlaces(data, 0.003);
   //drawonce();
@@ -284,6 +284,7 @@ Time of the week indication to show when through the week it's at
 
 
 PGraphics places_graphics;
+PGraphics me_secondary;
 PGraphics me_graphics;
 float UPDATE_TIME = 1000*60*10;
 //UPDATE_TIME *= 4;
@@ -297,13 +298,16 @@ color indicatorcolor = #ffdd22;
 color othercolor = #FFFFFF;
 
 void setup() {
-  size(800,800);
-  background(100);
-  smooth(8);
+  size(800,800, P2D);
+  smooth();
   //frameRate(2);
   frameRate(30);
-  places_graphics = createGraphics(width,height);
-  me_graphics = createGraphics(width,height);
+  places_graphics = createGraphics(width,height, P2D);
+  me_secondary = createGraphics(width,height, P2D);
+  me_secondary.beginDraw();
+  me_secondary.background(250);
+  me_secondary.endDraw();
+  me_graphics = createGraphics(width,height, P2D);
   font = loadFont("Courier New");
   textFont(font, 36);
 }
@@ -320,7 +324,7 @@ void draw() {
     background(0);
     updateTime();
     //drawPlaces(lg);
-    drawMovement(me_graphics);
+    drawMovement(me_graphics, me_secondary);
     drawHistory(places_graphics);
     drawMeWeek();
     drawTimeline();
@@ -416,12 +420,13 @@ void drawHistory(PGraphics p) {
 }
 
 
-void drawMovement(PGraphics p) {
+void drawMovement(PGraphics p, PGraphics p2) {
   p.beginDraw();
   p.noStroke();
   p.fill(0,0,0,10);
-  p.rectMode(CORNER);
-  p.rect(0,0,width,height);
+  p.rect(0,0,p.width,p.height);
+  //p.blend(p2, 0, 0, width, height, 0, 0, width, height, BLEND);
+  //p.alpha(1);
   for (index in weektimelines) {
     if (index < max_weeks) {
       var timeline = weektimelines[index];
@@ -451,6 +456,9 @@ void drawMovement(PGraphics p) {
   p.endDraw();
   image(p, 0, 0);
 }
+
+
+
 void drawMeWeek() {
   pushStyle();
   rectMode(CENTER);
