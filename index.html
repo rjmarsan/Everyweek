@@ -167,7 +167,7 @@ var parse = function(data) {
   //findPlaces(data, 0.003);
   //drawonce();
   weeks = makeWeekLists(data);
-  while (weeks.length > 1) weeks.pop();
+  //while (weeks.length > 1) weeks.pop();
   console.log(weeks);
   weektimelines = makeWeekTimelines(weeks);
   timeline.setHistory(data);
@@ -442,6 +442,14 @@ color weekdaycolor = #0099cc;
 color indicatorcolor = #ffdd22;
 color othercolor = #FFFFFF;
 
+
+float mscale = 1;
+float font_size = 36;
+float history_small_dot_size = 3;
+float path_stroke = 4;
+float me_circle_size = 7;
+float bottom_spacing = 50;
+
 void setup() {
   size(800,800, P2D);
   smooth();
@@ -454,7 +462,7 @@ void setup() {
   me_secondary.endDraw();
   me_graphics = createGraphics(width,height, P2D);
   font = loadFont("Courier New");
-  textFont(font, 36);
+  textFont(font, font_size*mscale);
   max_weeks = 1;
   setupData();
   alldone = false;
@@ -465,6 +473,7 @@ void setupData() {
   timeline.reset();
   initWeeks();
 }
+
 
 void draw() {
   if (alldone) {
@@ -495,11 +504,11 @@ void drawFps() {
 void drawLoading() {
   pushStyle();
   fill(othercolor, 100);
-  textFont(font, 36);
+  textFont(font, font_size*mscale);
   textAlign(CENTER,CENTER);
   if (downloadprogress.isdownloading) {
     text("Going back in time...", width/2, height/2);
-    textFont(font, 20);
+    textFont(font, font_size*0.55*mscale);
     text(""+new Date(downloadprogress.smallest).toDateString()+" - now ("+downloadprogress.eventcount+" events)", width/2, height/2+36);
   } else if (downloadprogress.finished) {
     text("Thinking...", width/2, height/2);
@@ -529,7 +538,6 @@ void updateTime() {
 	if (tl.isAtEnd()) {
 	  tl.reset();
 	  isdone = true;
-	  finished();
 	}
       }
     }
@@ -545,6 +553,7 @@ void updateTime() {
       //println("New week: "+max_weeks);
       if (max_weeks > weektimelines.length) {
 	alldone = true;
+	finished();
       }
     }
   }
@@ -572,6 +581,7 @@ void drawHistory(PGraphics p, boolean prettyup) {
     }
     //float radius = 2+pow(1.5, random(-120, 12));
     float radius = 2+pow(1.5, random(-120, 12));
+    radius = radius * mscale;
     //float radius = 2+pow(2, random(-30,6));
     p.ellipse(lon,lat, radius, radius);
     if (timeline.curitem.weekend) {
@@ -579,7 +589,7 @@ void drawHistory(PGraphics p, boolean prettyup) {
     } else {
       p.fill(weekdaycolor,30);
     }
-    p.ellipse(lon,lat, 3, 3); 
+    p.ellipse(lon,lat, history_small_dot_size*mscale, history_small_dot_size*mscale); 
     lasthistory = 0;
     numcircles += 1;
     //println("Num circles: "+numcircles);
@@ -617,7 +627,7 @@ void drawMovement(PGraphics p, PGraphics p2, boolean prettyup) {
 	float curlat = timeline.curlat;
 	if (index == max_weeks-1) {
 	  p.stroke(indicatorcolor, 20);
-	  p.strokeWeight(4);
+	  p.strokeWeight(path_stroke*mscale);
 	} else {
 	  p.stroke(indicatorcolor, 15);
 	  p.strokeWeight(1);
@@ -655,10 +665,10 @@ void drawMeWeek(boolean prettyup) {
 	float curlat = timeline.curlat;
 	if (index == max_weeks-1) {
 	  fill(indicatorcolor, 200);
-	  ellipse(curlon, curlat, 7,7);
+	  ellipse(curlon, curlat, me_circle_size*mscale,me_circle_size*mscale);
 	} else {
 	  fill(indicatorcolor, 100);
-	  ellipse(curlon, curlat, 7,7);
+	  ellipse(curlon, curlat, me_circle_size*mscale,me_circle_size*mscale);
 	}
 
 	timeline.lastlat = curlat;
@@ -679,17 +689,17 @@ void drawTimeline(boolean prettyup) {
 
 
 
-  float spaceh = 50;
+  float spaceh = bottom_spacing*mscale;
   float spacing = width/7;
   fill(othercolor, 100);
   textAlign(RIGHT,BOTTOM);
   if (prettyup) {
-    long start = weektimelines[0].history[0].timestampMs;
+    long start = new Number(weektimelines[0].history[0].timestampMs);
     History endweek = weektimelines[weektimelines.length-1];
-    long end = endweek.history[endweek.history.length-1].timestampMs;
-    text(new Date(start).toDateString()+" - "+new Date(end).toDateString(),width-15,height-spaceh-10);
+    long end = new Number(endweek.history[endweek.history.length-1].timestampMs);
+    text(new Date(start).toDateString()+" - "+new Date(end).toDateString(),width-15*mscale,height-spaceh-10*mscale);
   } else {
-    text(day+ " - Week "+min(max_weeks, weektimelines.length),width-15,height-spaceh-10);
+    text(day+ " - Week "+min(max_weeks, weektimelines.length),width-15*mscale,height-spaceh-10*mscale);
     //println("::: = "+getDayText(nowdate.getDay())+" at "+nowdate.toTimeString());
   }
 
