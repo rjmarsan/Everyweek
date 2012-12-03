@@ -643,7 +643,7 @@ void drawMovement(PGraphics p, PGraphics p2, boolean prettyup) {
 	  float nextlon = curlon;//getX(timeline.nextitem.longitude);
 	  float nextlat = curlat;//getY(timeline.nextitem.latitude);
 	  if (timeline.distance > 20) {
-	    sonification.ping(lastlon/width, lastlat/height, nextlon/width, nextlat/height, timeline.distance, index == max_weeks-1);
+	    sonification.ping(lastlon/width, lastlat/height, nextlon/width, nextlat/height, timeline.distance/width, index == max_weeks-1, index);
 	  }
 	  p.line(lastlon,lastlat, loclon, loclat);
 	  p.line(loclon, loclat, curlon, curlat);
