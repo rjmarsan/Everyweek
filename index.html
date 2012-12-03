@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<title>location1 : Built with Processing and Processing.js</title>
+		<title>EveryWeek - A Visualization/Sonification Built with Processing.js and Audiolet.js</title>
 		<link rel="icon"  type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAQAAVzABAEAjBQAaDwYAWjUGAGE6CQBrQQ0ATS8PAFhAJwBUQC8AbFI6AHVXPACBZk4A4NrWAPb19QAAAAAAAMmZmZmZmgAJIwAAAAAAcMIjPjA+PjAKpxIuMDMzMAm0Ii4zMzMACaIiLt3dMAAJtyIuIzPQAAm0Un5yM+IzKLRkfncy4iIotRF+dyLkIiq0QX53F+EiGrQUTkd34iIatEVu7u5iIVrBVVRBRFRVbAtGZGZla2uwAMu7u7u8vADAAwAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIABAADAAwAA" />
 		<meta name="Generator" content="Processing" />
 		<!-- - - - - - - - - - - - - - - - - - - - - 
@@ -14,7 +14,7 @@
 		+ - - - - - - - - - - - - - - - - - - - - -->
 		<style type="text/css">
 	body {
-	  background-color: #333; color: #bbb; line-height: normal;
+	  background-color: #000; color: #888; line-height: normal;
 	  font-family: Lucida Grande, Lucida Sans, Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
 	  font-size: 11px; font-weight: normal; text-decoration: none;
 		  line-height: 1.5em;
@@ -23,7 +23,7 @@
 		border: 0px solid transparent;
 	}
 	a, a:link, a:visited, a:active, a:hover { 
-		color: #cdcdcd; text-decoration: underline;
+		color: #777; text-decoration: underline;
 	}
 	h1 {
 	    font-family: Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
@@ -38,10 +38,14 @@
 	#content { 
 		margin: 50px auto 0px auto; padding: 25px 25px 15px 25px;
 		width: 800px; min-width: 300px; overflow: auto;
-		border-left: 1px solid #444; border-top: 1px solid #444; 
-		border-right: 1px solid #333; border-bottom: 1px solid #333;
-		background-color: #3d3d3d;
+		background-color: #000;
 		position: relative;
+	}
+	#text {
+		margin-top: 50px;
+	}
+	#text h1 {
+	  width: 400px;
 	}
 	.hover {
 		display: none;
@@ -50,6 +54,14 @@
 		top: 370px;
 		width: 800px;
 		font-size: 1.7em;
+	}
+	.right {
+		display: block;
+		float: right;
+	}
+
+	.clear {
+		clear: both;
 	}
 		</style>
 		<!--[if lt IE 9]>
@@ -784,10 +796,11 @@ function getDayText(int day) {
 					<p>JavaScript is required to view the contents of this page.</p>
 				</noscript>
 				<div id="login" class="hover">
+				  <h1> EveryWeek </h1>
 				  <p>
-				  See your location habits -  <a href="javascript:startLogin()">Log In Using Google Latitude</a> to try it out.
-				  </p>
+				  See and hear your location habits
 				  <p>
+				  <a href="javascript:startLogin()">Log In Using Google Latitude</a> to try it out, or check out the 
 				  <a href="javascript:startDemo()">Demo</a>
 				  </p>
 				</div>
@@ -795,17 +808,39 @@ function getDayText(int day) {
 				  <p> <a href="javascript:startAgain()">Again</a> <a href="javascript:snapshot()">Download</a></p>
 				</div>
 	    	</div>
-		<div>
-			<h1>Location Visualization</h1>
-			<div id="volume"> <a id="volume-button" href="javascript:toggleMute()">Mute</a></div>
+		<div id="text">
+			<div class="right" id="volume"> <a id="volume-button" href="javascript:toggleMute()">Mute</a></div>
+			<h1>EveryWeek Visualization</h1>
 			<!--<div id="screenshot"> <a href="javascript:snapshot()">take a screenshot</a> </div> -->
-			<p id="description">
-			  See your location habits. Log in using google latitude to see the patterns of places you go with the patterns of when you're active.
-			</p>
-			<p>
-			Built with <a href="http://processing.org" title="Processing">Processing</a>
-			and <a href="http://processingjs.org" title="Processing.js">Processing.js</a>
-			</p>
+			<div id="description" class="clear">
+			  <p>
+			    See and Listen to your location habits. Log in using google latitude to see the patterns of places you go with the patterns of when you're active.
+			  </p>
+			  <p>
+			    Hints - Circles expand around places you often visit. Lines form across places you move. Past weeks are overlayed behind the current week. The bottom bar shows an aggregate of how active you are per hour per week. The ocean noise corresponds to the time of day, the synth is a secret.
+			  <p>
+			  Built with <a href="http://processing.org" title="Processing">Processing</a>,
+			  <a href="http://processingjs.org" title="Processing.js">Processing.js</a>,
+			  and <a href="http://oampo.github.com/Audiolet/" title="Audiolet.js">Audiolet.js</a>
+			  </p>
+			</div>
+			<a id="showdescription" href="javascript:showDescription()">show description</a> <a id="hidedescription" href="javascript:hideDescription()">hide</a>
+			  <script>
+			    $(function() {
+				hideDescription();
+			    });
+			    function hideDescription() {
+				$("#description").fadeOut();
+				$("#showdescription").fadeIn();
+				$("#hidedescription").fadeOut();
+			    }
+
+			    function showDescription() {
+				$("#description").fadeIn();
+				$("#hidedescription").fadeIn();
+				$("#showdescription").fadeOut();
+			    }
+			  </script>
 		</div>
 	</body>
 </html>

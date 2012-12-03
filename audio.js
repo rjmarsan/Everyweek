@@ -99,7 +99,7 @@ Audio.prototype.updateTime = function(hourinweek) {
     this.noise.noisefilter.frequency.setValue(hourfreq);
     var volume = (1-hour/24)*0.7 + 0.3;
     this.noise.noisegain.gain.setValue(volume);
-    console.log("Setting hour "+hourinweek+ " to "+hour+" and "+hourfreq+" and "+volume);
+    //console.log("Setting hour "+hourinweek+ " to "+hour+" and "+hourfreq+" and "+volume);
 };
 
 
@@ -133,7 +133,7 @@ function Sonification() {
             audio.updateTime(progress*7*24);
         }
     }
-    this.ping = function(x1, y1, x2, y2, vel) {
+    this.ping = function(x1, y1, x2, y2, vel, ismain, week) {
         var x = (x1+x2)/2;
         var y = (y1+y2)/2;
         if (x < 0 || x > 1 || y < 0 || y > 1) return;
@@ -142,15 +142,17 @@ function Sonification() {
         var ycoord = Math.floor(y*size);
         //console.log("for "+x1+", "+y1+"  and  "+x2+","+y2+" we picked "+x+", "+y+" which is "+xcoord+","+ycoord); 
         var note = notegrid[ycoord][xcoord];
-        var offset = 60;
-        var vol = Math.min(1, vel/200);
-        console.log("Volume: "+vol);
+        var vol = Math.min(1, Math.abs(vel));
+        var range = 3-(week)%4;
+        var offset = (range+3)*12;
+        var type = 3-range; //square, saw, etc.
+        console.log("Volume: "+vol+" note: "+(offset+note));
         if (audio && audio.ready) {
-            audio.ping(offset+note, vol);
+            audio.ping(offset+note, vol, type);
         }
     }
 
-    this.ping = function(x1, y1, x2, y2, vel, ismain, week) {
+    this.ping2 = function(x1, y1, x2, y2, vel, ismain, week) {
         var x = (x1+x2)/2;
         var y = (y1+y2)/2;
         if (x < 0 || x > 1 || y < 0 || y > 1) return;
