@@ -55,20 +55,13 @@
 		<!--[if lt IE 9]>
 			<script type="text/javascript">alert("Your browser does not support the canvas tag.");</script>
 		<![endif]-->
-		<script src="processing.js" type="text/javascript"></script>
 		<script src="jquery.js" type="text/javascript"></script>
 		<script src="google-oauth2.js" type="text/javascript"></script>
-		<script>
+		<script type="text/javascript">
 
 function getProcessing() {
   return Processing.getInstanceById('location1');
 }
-
-$(function() {
-  $("#login").fadeIn();
-  initGO2();
-  //gethistory("ya29.AHES6ZQHcOBwkl3unZ1UkS4yPVCIC03uFMjeHGAgyDB8VAZgaM1Z1Q");
-});
 
 function initGO2() {
   GO2.init({client_id:"471207177107.apps.googleusercontent.com",
@@ -89,6 +82,16 @@ function startDemo() {
   hideLogin();
   demo();
 }
+
+$(function() {
+  $("#login").fadeIn();
+  initGO2();
+  //gethistory("ya29.AHES6ZQHcOBwkl3unZ1UkS4yPVCIC03uFMjeHGAgyDB8VAZgaM1Z1Q");
+});
+		</script>
+		<script type="text/javascript">
+
+
 
 downloadprogress = new Object();
 downloadprogress.isdownloading = false;
@@ -136,7 +139,7 @@ function demo() {
     data.data.items.reverse();
     parse(data.data.items);
   });
-};
+}
 
 function finished() {
   $("#endcard").fadeIn();
@@ -148,17 +151,14 @@ function startAgain() {
   again();
 }
 
-		</script>
-		<script type="text/processing" data-processing-target="location1">
 
+var timeline = new History();
+var weeks = [];
+var weektimelines = [];
+var activity = [];
+var dataisready = false;
 
-timeline = new History();
-weeks = [];
-weektimelines = [];
-activity = [];
-dataisready = false;
-
-parse = function(data) {
+var parse = function(data) {
   //for (var x=0; x<700; x++) data.pop();
   data.reverse();
   //console.log(data);
@@ -247,12 +247,12 @@ function makeWeekTimelines(weeks) {
 }
 
 
-function initActivity() {
+var initActivity = function() {
   activity = [];
   for (var x=0; x<24*7; x++) {
     activity.push(0);
   }
-}
+};
 
 function initWeeks() {
   for (index in weektimelines) {
@@ -261,16 +261,16 @@ function initWeeks() {
 }
 
 
-float getLonX(lon, left, scale) {
-    return ((lon-left+scale)/scale)*width;
+function getLonX(lon, left, scale) {
+    return ((lon-left+scale)/scale)*p.width;
 }
-float getLatY(lat, top, scale) {
-  return height-((lat-top )/scale)*height;
+function getLatY(lat, top, scale) {
+  return p.height-((lat-top )/scale)*p.height;
 }
-float getX(lon) {
+function getX(lon) {
     return getLonX(lon, g_lon, g_lon_scale);
 }
-float getY(lat) {
+function getY(lat) {
     return getLatY(lat, g_lat, g_lat_scale);
 }
 
@@ -314,7 +314,7 @@ History.prototype.update = function(amount) {
     this.curitem = this.history[this.currentindex];
     this.nextitem = this.history[this.currentindex+1];
     this.duration = this.nextitem.timestampMs - this.curitem.timestampMs;
-    this.progress = float(this.now - this.curitem.timestampMs)/float(this.duration);
+    this.progress = (this.now - this.curitem.timestampMs)/(this.duration+0.0);
     this.lastlat = this.curlat;
     this.lastlon = this.curlon;
     this.curlat = this.getInterpLat();
@@ -348,7 +348,7 @@ History.prototype.areAnyInRange = function() {
     for (i in this.history) {
       var x = getX(this.history[i].longitude);
       var y = getY(this.history[i].latitude);
-      if (x > 0 && x < width && y > 0 && y < height)
+      if (x > 0 && x < p.width && y > 0 && y < p.height)
 	return true;
     }
     return false;
@@ -357,7 +357,7 @@ History.prototype.areAnyInRange = function() {
 History.prototype.isInRange = function() {
     var x = this.curlat;//getX(this.curitem.longitude);
     var y = this.curlon;//getY(this.curitem.latitude);
-    if (x > 0 && x < width && y > 0 && y < height)
+    if (x > 0 && x < p.width && y > 0 && y < p.height)
       return true;
     else
       return false;
@@ -377,6 +377,12 @@ History.prototype.isInRange = function() {
 
 
 
+		</script>
+		<script src="processing.js" type="text/javascript"></script>
+		<script type="text/processing" data-processing-target="location1">
+
+
+
 
 
 
@@ -393,7 +399,7 @@ Time of the week indication to show when through the week it's at
 
 
 /** globals **/
-snapshot = function() {
+window.snapshot = function() {
   //var pngUrl = externals.canvas.toDataURL("image/png;base64");
   //var rawImageData = pngUrl.replace("image/png", "image/octet-stream")
   //document.location.href = rawImageData;
@@ -402,20 +408,22 @@ snapshot = function() {
 }
 
 
-again = function() {
+window.again = function() {
   setup();
 }
 
 
-g_lon = -88.2; //12;
-g_lon_scale = 0.05; //2;
-g_lat = 40.077; //05;
-g_lat_scale = 0.05; //2;
+window.g_lon = -88.2; //12;
+window.g_lon_scale = 0.05; //2;
+window.g_lat = 40.077; //05;
+window.g_lat_scale = 0.05; //2;
 
 
-dist = dist;
-
-
+window.dist = dist;
+window.floor = floor;
+window.ceil = ceil;
+window.lerp = lerp;
+window.p = Processing.getInstanceById('location1');
 
 
 
@@ -453,7 +461,7 @@ void setup() {
 }
 
 void setupData() {
-  initActivity();
+  window.initActivity();
   timeline.reset();
   initWeeks();
 }
@@ -743,7 +751,6 @@ function getDayText(int day) {
 
 
 		</script>
-
 	</head>
 	<body>
 		<div id="content">
