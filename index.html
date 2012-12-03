@@ -275,76 +275,76 @@ float getY(var lat) {
 }
 
 
-class History {
-  var history;
-  var firsttime;
-  var now;
-  var currentindex;
-  var curitem;
-  var nextitem;
-  var progress;
-  var duration;
-  var lastlat = -Infinity;
-  var lastlon = -Infinity;
-  var isnewlocation;
-  var curlat;
-  var curlon;
-  var distance;
-  void setHistory(var list) {
+function History() {
+  this.history = [];
+  this.firsttime = 0;
+  this.now = 0;
+  this.currentindex = 0;
+  this.curitem = 0;
+  this.nextitem = 0;
+  this.progress = 0;
+  this.duration = 0;
+  this.lastlat = -Infinity;
+  this.lastlon = -Infinity;
+  this.isnewlocation = 0;
+  this.curlat = 0;
+  this.curlon = 0;
+  this.distance = 0;
+}
+History.prototype.setHistory = function(list) {
     this.history = list;
-    this.firsttime = history[0].timestampMs;
+    this.firsttime = this.history[0].timestampMs;
     this.currentindex = 0;
     this.now = getStartOfWeek(new Number(this.firsttime));
     this.firsttime = this.now;
     console.log("First time: "+this.firsttime+ " now "+this.now);
-  }
-  void update(var amount) {
+};
+History.prototype.update = function(amount) {
     this.now += amount;
-    if (!this.history || this.currentindex+1 >= this.history.length) return;
+    if (!this.history || this.currentindex+1 >= this.history.length) { return; }
     //println("starting update by "+amount+" now at "+this.now+" with curindex attt "+this.currentindex);
     this.isnewlocation = false;
     while (this.history[this.currentindex+1].timestampMs < this.now) {
       //println("Not there yet: "+this.currentindex+" looking for "+this.now+" and got "+history[this.currentindex+1].timestampMs);
       this.currentindex += 1;
       this.isnewlocation = true;
-      if (this.currentindex+2 >= this.history.length) return;
+      if (this.currentindex+2 >= this.history.length) { return; }
     }
    // println("Calling update by "+amount+" now at "+this.now+" with curindex attt "+this.currentindex);
-    this.curitem = history[this.currentindex];
-    this.nextitem = history[this.currentindex+1];
+    this.curitem = this.history[this.currentindex];
+    this.nextitem = this.history[this.currentindex+1];
     this.duration = this.nextitem.timestampMs - this.curitem.timestampMs;
     this.progress = float(this.now - this.curitem.timestampMs)/float(this.duration);
-    this.lastlat = curlat;
-    this.lastlon = curlon;
-    this.curlat = getInterpLat();
-    this.curlon = getInterpLon();
-    this.distance = dist(lastlat, lastlon, curlat, curlon);
-  }
-
-  boolean isOkToInterp() {
+    this.lastlat = this.curlat;
+    this.lastlon = this.curlon;
+    this.curlat = this.getInterpLat();
+    this.curlon = this.getInterpLon();
+    this.distance = dist(this.lastlat, this.lastlon, this.curlat, this.curlon);
+};
+History.prototype.isOkToInterp = function() {
     return (this.nextitem && this.duration < 1000*60*60*6 && this.curitem.timestampMs <= this.now);
-  }
-  boolean isAtEnd() {
+};
+History.prototype.isAtEnd = function() {
     return (this.now - this.firsttime) > (1000*60*60*24*7);
-  }
-  void reset() {
+};
+History.prototype.reset = function() {
     this.currentindex = 0;
     this.now = this.firsttime;
-  }
-  float getInterpLon() {
+};
+History.prototype.getInterpLon = function() {
     var lon1 = getLonX(this.curitem.longitude, g_lon, g_lon_scale);
     var lon2 = getLonX(this.nextitem.longitude, g_lon, g_lon_scale);
     var curlon = lerp(lon1, lon2, this.progress);
     return curlon;
-  }
-  float getInterpLat() {
+};
+History.prototype.getInterpLat = function() {
     var lat1 = getLatY(this.curitem.latitude, g_lat, g_lat_scale);
     var lat2 = getLatY(this.nextitem.latitude, g_lat, g_lat_scale);
     var curlat = lerp(lat1, lat2, this.progress);
     return curlat;
-  }
+};
 
-  boolean areAnyInRange() {
+History.prototype.areAnyInRange = function() {
     for (i in this.history) {
       var x = getX(this.history[i].longitude);
       var y = getY(this.history[i].latitude);
@@ -352,20 +352,16 @@ class History {
 	return true;
     }
     return false;
-  }
+};
 
-  boolean isInRange() {
+History.prototype.isInRange = function() {
     var x = this.curlat;//getX(this.curitem.longitude);
     var y = this.curlon;//getY(this.curitem.latitude);
     if (x > 0 && x < width && y > 0 && y < height)
       return true;
     else
       return false;
-
-  }
-
-
-}
+};
 
 
 
@@ -396,9 +392,7 @@ Time of the week indication to show when through the week it's at
 
 
 
-
-
-
+/** globals **/
 snapshot = function() {
   //var pngUrl = externals.canvas.toDataURL("image/png;base64");
   //var rawImageData = pngUrl.replace("image/png", "image/octet-stream")
@@ -413,6 +407,10 @@ again = function() {
 }
 
 
+g_lon = -88.2; //12;
+g_lon_scale = 0.05; //2;
+g_lat = 40.077; //05;
+g_lat_scale = 0.05; //2;
 
 
 
@@ -421,7 +419,7 @@ again = function() {
 
 
 
-var currentweek;
+History currentweek;
 PGraphics places_graphics;
 PGraphics me_secondary;
 PGraphics me_graphics;
@@ -460,11 +458,6 @@ void setupData() {
   initWeeks();
 }
 
-
-var g_lon = -88.2; //12;
-var g_lon_scale = 0.05; //2;
-var g_lat = 40.077; //05;
-var g_lat_scale = 0.05; //2;
 void draw() {
   if (alldone) {
     drawAnimation(true);
@@ -513,16 +506,16 @@ void updateTime() {
     //println("Time now: "+timeline.now+" and history: "+timeline.history[0].timestampMs);
     if (max_weeks == 1 && timeline.now < timeline.history[0].timestampMs) {
       //SPECIAL BEHAVIOR
-      var distuntilstart = timeline.history[0].timestampMs - timeline.now;
+      long distuntilstart = timeline.history[0].timestampMs - timeline.now;
       //println("Special behavior. jumping "+distuntilstart+ " from "+timeline.now+ " to "+timeline.history[0].timestampMs);
       timeline.update(distuntilstart);
       weektimelines[0].update(distuntilstart);
     }
-    var isdone = false;
+    boolean isdone = false;
     timeline.update(UPDATE_TIME);
     for (index in weektimelines) {
       if (index < max_weeks) {
-	var tl = weektimelines[index];
+	History tl = weektimelines[index];
 	tl.update(UPDATE_TIME); //30 minutes
 
 	if (tl.isAtEnd()) {
@@ -536,7 +529,7 @@ void updateTime() {
     if (currentweek.distance < 100000 && currentweek.isInRange()) {
       //don't add if we fly somewhere. then we look very active.
       var day = new Date(timeline.now);
-      var index = day.getDay()*24 + day.getHours();
+      int index = day.getDay()*24 + day.getHours();
       activity[index] += currentweek.distance;
     }
     if (isdone) {
@@ -557,7 +550,7 @@ void drawHistory(PGraphics p, boolean prettyup) {
     image(p, 0, 0);
     return; //we don't do anything;
   }
-  var timeline = currentweek;//weektimelines[max_weeks-1];
+  History timeline = currentweek;//weektimelines[max_weeks-1];
   p.beginDraw();
   if (timeline.curitem && (timeline.isnewlocation || lasthistory >= 1) ) {
     float lon, lat;
@@ -610,10 +603,10 @@ void drawMovement(PGraphics p, PGraphics p2, boolean prettyup) {
   //p.alpha(1);
   for (index in weektimelines) {
     if (index < max_weeks) {
-      var timeline = weektimelines[index];
+      History timeline = weektimelines[index];
       if (timeline.isOkToInterp()) {
-	var curlon = timeline.curlon;
-	var curlat = timeline.curlat;
+	float curlon = timeline.curlon;
+	float curlat = timeline.curlat;
 	if (index == max_weeks-1) {
 	  p.stroke(indicatorcolor, 20);
 	  p.strokeWeight(4);
@@ -621,11 +614,11 @@ void drawMovement(PGraphics p, PGraphics p2, boolean prettyup) {
 	  p.stroke(indicatorcolor, 15);
 	  p.strokeWeight(1);
 	}
-	var lastlat = timeline.lastlat;
-	var lastlon = timeline.lastlon;
+	float lastlat = timeline.lastlat;
+	float lastlon = timeline.lastlon;
 	if (timeline.isnewlocation) {
-	  var loclon = getX(timeline.curitem.longitude);
-	  var loclat = getY(timeline.curitem.latitude);
+	  float loclon = getX(timeline.curitem.longitude);
+	  float loclat = getY(timeline.curitem.latitude);
 	  p.line(lastlon,lastlat, loclon, loclat);
 	  p.line(loclon, loclat, curlon, curlat);
 	} else {
@@ -641,16 +634,17 @@ void drawMovement(PGraphics p, PGraphics p2, boolean prettyup) {
 
 
 void drawMeWeek(boolean prettyup) {
+  if (prettyup) return; //don't even want to show this here.
   pushStyle();
   rectMode(CENTER);
   noStroke();
   stroke(0, 0, 0, 60);
   for (index in weektimelines) {
     if (index < max_weeks) {
-      var timeline = weektimelines[index];
+      History timeline = weektimelines[index];
       if (timeline.isOkToInterp()) {
-	var curlon = timeline.curlon;
-	var curlat = timeline.curlat;
+	float curlon = timeline.curlon;
+	float curlat = timeline.curlat;
 	if (index == max_weeks-1) {
 	  fill(indicatorcolor, 200);
 	  ellipse(curlon, curlat, 7,7);
@@ -669,22 +663,22 @@ void drawMeWeek(boolean prettyup) {
 
 void drawTimeline(boolean prettyup) {
   if (!weektimelines || weektimelines.length <= 0) return;
-  var nowms = weektimelines[0].now;
-  var amountthrough = nowms - weektimelines[0].firsttime;
-  var percentthrough = amountthrough / (1000*60*60*24*7);
+  long nowms = weektimelines[0].now;
+  long amountthrough = nowms - weektimelines[0].firsttime;
+  float percentthrough = amountthrough / (1000*60*60*24*7.0);
   var nowdate = new Date(nowms);
-  var day = getDayText(nowdate.getDay());
+  String day = getDayText(nowdate.getDay());
 
 
 
-  var spaceh = 50;
-  var spacing = width/7;
+  float spaceh = 50;
+  float spacing = width/7;
   fill(othercolor, 100);
   textAlign(RIGHT,BOTTOM);
   if (prettyup) {
-    var start = weektimelines[0].history[0].timestampMs;
-    var endweek = weektimelines[weektimelines.length-1];
-    var end = endweek.history[endweek.history.length-1].timestampMs;
+    long start = weektimelines[0].history[0].timestampMs;
+    History endweek = weektimelines[weektimelines.length-1];
+    long end = endweek.history[endweek.history.length-1].timestampMs;
     text(new Date(start).toDateString()+" - "+new Date(end).toDateString(),width-15,height-spaceh-10);
   } else {
     text(day+ " - Week "+min(max_weeks, weektimelines.length),width-15,height-spaceh-10);
@@ -701,20 +695,20 @@ void drawTimeline(boolean prettyup) {
   fill(othercolor, 8);
   rect(0, height-spaceh, width, spaceh);
   stroke(othercolor, 50);
-  for (var i=1; i<7; i++) {
+  for (int i=1; i<7; i++) {
     line(spacing*i, height-spaceh, spacing*i, height);
   }
   
   noStroke();
-  var maxactivity = max(activity);
-  var hourspace = width/(7*24);
+  float maxactivity = max(activity);
+  float hourspace = width/(7*24);
   rectMode(CORNERS);
-  for (var i=0; i<activity.length; i++) {
+  for (int i=0; i<activity.length; i++) {
     if (ishourweekend(i)) 
       fill(weekendcolor, 70);
     else
       fill(weekdaycolor, 70);
-    var val = activity[i];
+    float val = activity[i];
     val = val/maxactivity * spaceh;
     rect(floor((i)*hourspace), height-val, floor((i+1)*hourspace), height);
   }
@@ -727,7 +721,7 @@ void drawTimeline(boolean prettyup) {
 }
 
 
-function getDayText(var day) {
+function getDayText(int day) {
   if (day == 0) {
     return "Sunday";
   } else if (day == 1) {
