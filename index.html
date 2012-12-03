@@ -158,7 +158,7 @@ weektimelines = [];
 activity = [];
 dataisready = false;
 
-parse = function(var data) {
+parse = function(data) {
   //for (var x=0; x<700; x++) data.pop();
   data.reverse();
   //console.log(data);
@@ -176,11 +176,11 @@ parse = function(var data) {
   dataisready = true;
 };
 
-function processAll(var data) {
+function processAll(data) {
   for (index in data) processItem(data[index]);
 }
 
-function processItem(var item) {
+function processItem(item) {
   var timestamp = new Number(item.timestampMs);
   //println("asdfasdf:"+timestamp);
   var date = new Date(timestamp);
@@ -204,7 +204,7 @@ function ishourweekend(hourofweek) {
   return hourofweek < 24 || hourofweek >= 5.7*24;
 }
 
-function makeWeekLists(var history) {
+function makeWeekLists(history) {
   //println("Calling makeWeekLists with "+history.length);
   var current_day = 0;
   var weeks = [];
@@ -223,14 +223,14 @@ function makeWeekLists(var history) {
   return weeks;
 }
 
-function getStartOfWeek(var timestamp) {
+function getStartOfWeek(timestamp) {
   var day = new Date(timestamp);
   day.setDate(day.getDate()-day.getDay());
   day.setHours(0,0,0);
   return day.getTime();
 }
 
-function makeWeekTimelines(var weeks) {
+function makeWeekTimelines(weeks) {
   var timelines = [];
   for (index in weeks) {
     var week = weeks[index];
@@ -261,16 +261,16 @@ function initWeeks() {
 }
 
 
-float getLonX(var lon, var left, var scale) {
+float getLonX(lon, left, scale) {
     return ((lon-left+scale)/scale)*width;
 }
-float getLatY(var lat, var top, var scale) {
+float getLatY(lat, top, scale) {
   return height-((lat-top )/scale)*height;
 }
-float getX(var lon) {
+float getX(lon) {
     return getLonX(lon, g_lon, g_lon_scale);
 }
-float getY(var lat) {
+float getY(lat) {
     return getLatY(lat, g_lat, g_lat_scale);
 }
 
@@ -413,7 +413,7 @@ g_lat = 40.077; //05;
 g_lat_scale = 0.05; //2;
 
 
-
+dist = dist;
 
 
 
