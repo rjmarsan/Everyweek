@@ -708,6 +708,7 @@ void drawTimeline(boolean prettyup) {
   noStroke();
   var maxactivity = max(activity);
   var hourspace = width/(7*24);
+  rectMode(CORNERS);
   for (var i=0; i<activity.length; i++) {
     if (ishourweekend(i)) 
       fill(weekendcolor, 70);
@@ -715,9 +716,10 @@ void drawTimeline(boolean prettyup) {
       fill(weekdaycolor, 70);
     var val = activity[i];
     val = val/maxactivity * spaceh;
-    rect(i*hourspace, height-val, hourspace, val);
+    rect(floor((i)*hourspace), height-val, floor((i+1)*hourspace), height);
   }
 
+  rectMode(CORNER);
   if (!prettyup) {
     stroke(indicatorcolor,160);
     line(width*percentthrough, height-spaceh*0.7, width*percentthrough, height);
@@ -773,7 +775,7 @@ function getDayText(var day) {
 	    	</div>
 		<div>
 			<h1>Location Visualization</h1>
-			<div id="screenshot"> <a href="javascript:snapshot()">take a screenshot</a> </div>
+			<!--<div id="screenshot"> <a href="javascript:snapshot()">take a screenshot</a> </div> -->
 			<p id="description">
 			  See your location habits. Log in using google latitude to see the patterns of places you go with the patterns of when you're active.
 			</p>
