@@ -15,7 +15,7 @@ function Audio() {
     this.audiolet = new Audiolet();
     this.envelope = new ADSREnvelope(this.audiolet, 0, 2, 0.1, 1, 2);
     this.gain = new Gain(this.audiolet, 1);
-    this.reverb = new Reverb(this.audiolet, 0.5, 0.8, 0.3);
+    this.reverb = new Reverb(this.audiolet, 0.7, 0.8, 0.2);
     this.volume = new Gain(this.audiolet, 0.5);
     this.onoff = new Gain(this.audiolet, 1);
     this.out = this.gain;
@@ -29,7 +29,9 @@ function Audio() {
     this.Synth = function(audiolet, frequency, vol) {
         AudioletGroup.apply(this, [audiolet, 0, 1]);
         this.sine = new Sine(this.audiolet, frequency);
-        this.gain = new Gain(this.audiolet, vol);
+        this.gain = new Gain(this.audiolet);
+        this.gain2 = new Gain(this.audiolet);
+        this.gain2.gain.setValue(vol);
         this.envelope = new PercussiveEnvelope(this.audiolet, 1, 0.1, 0.1,
           function() {
               this.audiolet.scheduler.addRelative(0,
@@ -39,7 +41,8 @@ function Audio() {
 
         this.envelope.connect(this.gain, 0, 1);
         this.sine.connect(this.gain);
-        this.gain.connect(this.outputs[0]);
+        this.gain.connect(this.gain2)
+        this.gain2.connect(this.outputs[0])
     };
     extend(this.Synth, AudioletGroup);
 
@@ -54,17 +57,6 @@ function Audio() {
         this.noisegain.connect(this.outputs[0]);
     };
     extend(this.Noise, AudioletGroup);
-    var buildNoise = function() {
-        this.noise = new WhiteNoise(this.audiolet);
-        this.noisefilter = new BandPassFilter(this.audiolet, 1600);
-        this.noisefilter2 = new BandPassFilter(this.audiolet, 100);
-        this.noisegain = new Gain(this.audiolet, 0.3);
-        
-        this.noise.connect(this.noisefilter);
-        this.noisefilter2.connect(this.noisefilter);
-        this.noisefilter.connect(this.noisegain);
-        this.noisegain.connect(this.out);
-    }
     this.noise = new this.Noise(this.audiolet);
     this.noise.connect(this.out);
 
@@ -73,7 +65,7 @@ function Audio() {
 
 Audio.prototype.ping = function(midinote, volume) {
     var freq = Math.pow(2, (midinote-69)/12)*440;
-    var synth = new this.Synth(this.audiolet, freq);
+    var synth = new this.Synth(this.audiolet, freq, volume);
     synth.connect(this.out);
 };
 
@@ -136,11 +128,13 @@ function Sonification() {
         var size = notes.length;
         var xcoord = Math.floor(x*size);
         var ycoord = Math.floor(y*size);
-        console.log("for "+x1+", "+y1+"  and  "+x2+","+y2+" we picked "+x+", "+y+" which is "+xcoord+","+ycoord); 
+        //console.log("for "+x1+", "+y1+"  and  "+x2+","+y2+" we picked "+x+", "+y+" which is "+xcoord+","+ycoord); 
         var note = notegrid[ycoord][xcoord];
         var offset = 60;
+        var vol = Math.min(1, vel/200);
+        console.log("Volume: "+vol);
         if (audio && audio.ready) {
-            audio.ping(offset+note, vel/50);
+            audio.ping(offset+note, vol);
         }
     }
 }
