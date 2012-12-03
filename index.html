@@ -43,7 +43,8 @@
 		background-color: #3d3d3d;
 		position: relative;
 	}
-	#login {
+	.hover {
+		display: none;
 		position: absolute;
 		text-align: center;
 		top: 370px;
@@ -64,6 +65,7 @@ function getProcessing() {
 }
 
 $(function() {
+  $("#login").fadeIn();
   initGO2();
   //gethistory("ya29.AHES6ZQHcOBwkl3unZ1UkS4yPVCIC03uFMjeHGAgyDB8VAZgaM1Z1Q");
 });
@@ -76,7 +78,7 @@ function initGO2() {
 }
 
 function hideLogin() {
-  $("#login").hide();
+  $("#login").fadeOut();
 }
 
 function startLogin() {
@@ -127,11 +129,7 @@ function getHistoryUntil(token, until, accumulated, progress, finished) {
   });
 }
 
-
-		</script>
-		<script type="text/processing" data-processing-target="location1">
-
-demo = function() {
+function demo() {
   //jQuery.getJSON("latitude.json",function(data) {
   jQuery.getJSON("test.json",function(data) {
   //jQuery.getJSON("firstbatch.json",function(data) {
@@ -139,7 +137,20 @@ demo = function() {
     parse(data.data.items);
   });
 };
-//*/
+
+function finished() {
+  $("#endcard").fadeIn();
+}
+
+
+function startAgain() {
+  $("#endcard").fadeOut();
+  again();
+}
+
+		</script>
+		<script type="text/processing" data-processing-target="location1">
+
 
 timeline = new History();
 weeks = [];
@@ -156,11 +167,12 @@ parse = function(var data) {
   //findPlaces(data, 0.003);
   //drawonce();
   weeks = makeWeekLists(data);
-  //while (weeks.length > 1) weeks.pop();
+  while (weeks.length > 1) weeks.pop();
   console.log(weeks);
   weektimelines = makeWeekTimelines(weeks);
   timeline.setHistory(data);
   initActivity();
+  initWeeks();
   dataisready = true;
 };
 
@@ -236,11 +248,17 @@ function makeWeekTimelines(var weeks) {
 
 
 function initActivity() {
+  activity = [];
   for (var x=0; x<24*7; x++) {
     activity.push(0);
   }
 }
 
+function initWeeks() {
+  for (index in weektimelines) {
+    weektimelines[index].reset();
+  }
+}
 
 
 float getLonX(var lon, var left, var scale) {
@@ -381,6 +399,19 @@ Time of the week indication to show when through the week it's at
 
 
 
+snapshot = function() {
+  //var pngUrl = externals.canvas.toDataURL("image/png;base64");
+  //var rawImageData = pngUrl.replace("image/png", "image/octet-stream")
+  //document.location.href = rawImageData;
+  //console.log(pngUrl);
+  save();
+}
+
+
+again = function() {
+  setup();
+}
+
 
 
 
@@ -418,6 +449,15 @@ void setup() {
   me_graphics = createGraphics(width,height, P2D);
   font = loadFont("Courier New");
   textFont(font, 36);
+  max_weeks = 1;
+  setupData();
+  alldone = false;
+}
+
+void setupData() {
+  initActivity();
+  timeline.reset();
+  initWeeks();
 }
 
 
@@ -488,6 +528,7 @@ void updateTime() {
 	if (tl.isAtEnd()) {
 	  tl.reset();
 	  isdone = true;
+	  finished();
 	}
       }
     }
@@ -512,6 +553,10 @@ void updateTime() {
 int lasthistory;
 int numcircles = 0;
 void drawHistory(PGraphics p, boolean prettyup) {
+  if (prettyup) {
+    image(p, 0, 0);
+    return; //we don't do anything;
+  }
   var timeline = currentweek;//weektimelines[max_weeks-1];
   p.beginDraw();
   if (timeline.curitem && (timeline.isnewlocation || lasthistory >= 1) ) {
@@ -548,6 +593,15 @@ void drawHistory(PGraphics p, boolean prettyup) {
 
 
 void drawMovement(PGraphics p, PGraphics p2, boolean prettyup) {
+  if (prettyup) {
+    p.beginDraw();
+    p.noStroke();
+    p.fill(0,0,0,10);
+    p.rect(0,0,p.width,p.height);
+    p.endDraw();
+    image(p, 0, 0);
+    return;
+  }
   p.beginDraw();
   p.noStroke();
   p.fill(0,0,0,10);
@@ -627,8 +681,15 @@ void drawTimeline(boolean prettyup) {
   var spacing = width/7;
   fill(othercolor, 100);
   textAlign(RIGHT,BOTTOM);
-  text(day+ " - Week "+min(max_weeks, weektimelines.length),width-15,height-spaceh-10);
-  //println("::: = "+getDayText(nowdate.getDay())+" at "+nowdate.toTimeString());
+  if (prettyup) {
+    var start = weektimelines[0].history[0].timestampMs;
+    var endweek = weektimelines[weektimelines.length-1];
+    var end = endweek.history[endweek.history.length-1].timestampMs;
+    text(new Date(start).toDateString()+" - "+new Date(end).toDateString(),width-15,height-spaceh-10);
+  } else {
+    text(day+ " - Week "+min(max_weeks, weektimelines.length),width-15,height-spaceh-10);
+    //println("::: = "+getDayText(nowdate.getDay())+" at "+nowdate.toTimeString());
+  }
 
 
   noStroke();
@@ -657,8 +718,10 @@ void drawTimeline(boolean prettyup) {
     rect(i*hourspace, height-val, hourspace, val);
   }
 
-  stroke(indicatorcolor,160);
-  line(width*percentthrough, height-spaceh*0.7, width*percentthrough, height);
+  if (!prettyup) {
+    stroke(indicatorcolor,160);
+    line(width*percentthrough, height-spaceh*0.7, width*percentthrough, height);
+  }
 }
 
 
@@ -683,14 +746,6 @@ function getDayText(var day) {
 }
 
 
-snapshot = function() {
-  //var pngUrl = externals.canvas.toDataURL("image/png;base64");
-  //var rawImageData = pngUrl.replace("image/png", "image/octet-stream")
-  //document.location.href = rawImageData;
-  //console.log(pngUrl);
-  save();
-}
-
 		</script>
 
 	</head>
@@ -704,13 +759,16 @@ snapshot = function() {
 				<noscript>
 					<p>JavaScript is required to view the contents of this page.</p>
 				</noscript>
-				<div id="login">
+				<div id="login" class="hover">
 				  <p>
 				  Want to visualize your habits? -  <a href="javascript:startLogin()">Log In Using Google Latitude</a> to try it out.
 				  </p>
 				  <p>
 				  Want to see a demo? <a href="javascript:startDemo()">Watch</a>
 				  </p>
+				</div>
+				<div id="endcard" class="hover">
+				  <p> <a href="javascript:startAgain()">Again</a> <a href="javascript:snapshot()">Download</a></p>
 				</div>
 	    	</div>
 		<div>
