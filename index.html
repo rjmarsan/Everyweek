@@ -156,6 +156,7 @@ parse = function(var data) {
   //findPlaces(data, 0.003);
   //drawonce();
   weeks = makeWeekLists(data);
+  //while (weeks.length > 1) weeks.pop();
   console.log(weeks);
   weektimelines = makeWeekTimelines(weeks);
   timeline.setHistory(data);
@@ -426,20 +427,25 @@ var g_lat = 40.077; //05;
 var g_lat_scale = 0.05; //2;
 void draw() {
   if (alldone) {
-    
+    drawAnimation(true);
   } else if (dataisready && weektimelines.length > 0) {
-    background(0);
     updateTime();
-    //drawPlaces(lg);
-    drawMovement(me_graphics, me_secondary);
-    drawHistory(places_graphics);
-    drawMeWeek();
-    drawTimeline();
+    drawAnimation(false);
   } else {
     background(0);
     drawLoading();
   }
 }
+
+void drawAnimation(boolean prettyup) {
+  background(0);
+  //drawPlaces(lg);
+  drawMovement(me_graphics, me_secondary, prettyup);
+  drawHistory(places_graphics, prettyup);
+  drawMeWeek(prettyup);
+  drawTimeline(prettyup);
+}
+
 void drawFps() {
   fill(255, 0, 0);
   //ellipse(30,30,int(frameCount)%25, int(frameCount)%25);
@@ -451,7 +457,7 @@ void drawLoading() {
   textFont(font, 36);
   textAlign(CENTER,CENTER);
   if (downloadprogress.isdownloading) {
-    text("Downloading...", width/2, height/2);
+    text("Going back in time...", width/2, height/2);
     textFont(font, 20);
     text(""+new Date(downloadprogress.smallest).toDateString()+" - now ("+downloadprogress.eventcount+" events)", width/2, height/2+36);
   } else if (downloadprogress.finished) {
@@ -505,7 +511,7 @@ void updateTime() {
 
 int lasthistory;
 int numcircles = 0;
-void drawHistory(PGraphics p) {
+void drawHistory(PGraphics p, boolean prettyup) {
   var timeline = currentweek;//weektimelines[max_weeks-1];
   p.beginDraw();
   if (timeline.curitem && (timeline.isnewlocation || lasthistory >= 1) ) {
@@ -541,7 +547,7 @@ void drawHistory(PGraphics p) {
 }
 
 
-void drawMovement(PGraphics p, PGraphics p2) {
+void drawMovement(PGraphics p, PGraphics p2, boolean prettyup) {
   p.beginDraw();
   p.noStroke();
   p.fill(0,0,0,10);
@@ -580,7 +586,7 @@ void drawMovement(PGraphics p, PGraphics p2) {
 
 
 
-void drawMeWeek() {
+void drawMeWeek(boolean prettyup) {
   pushStyle();
   rectMode(CENTER);
   noStroke();
@@ -607,7 +613,7 @@ void drawMeWeek() {
   popStyle();
 }
 
-void drawTimeline() {
+void drawTimeline(boolean prettyup) {
   if (!weektimelines || weektimelines.length <= 0) return;
   var nowms = weektimelines[0].now;
   var amountthrough = nowms - weektimelines[0].firsttime;
@@ -677,6 +683,13 @@ function getDayText(var day) {
 }
 
 
+snapshot = function() {
+  //var pngUrl = externals.canvas.toDataURL("image/png;base64");
+  //var rawImageData = pngUrl.replace("image/png", "image/octet-stream")
+  //document.location.href = rawImageData;
+  //console.log(pngUrl);
+  save();
+}
 
 		</script>
 
@@ -700,7 +713,9 @@ function getDayText(var day) {
 				  </p>
 				</div>
 	    	</div>
+		<div>
 			<h1>Location Visualization</h1>
+			<div id="screenshot"> <a href="javascript:snapshot()">take a screenshot</a> </div>
 			<p id="description">
 			  See your location habits. Log in using google latitude to see the patterns of places you go with the patterns of when you're active.
 			</p>
