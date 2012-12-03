@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="Audiolet.min.js" type="text/javascript"></script>
+		<script src="audio.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<div id="content">
+			<div>
+				<canvas id="location1" width="800" height="800">
+					<p>Your browser does not support the canvas tag.</p>
+					<!-- Note: you can put any alternative content here. -->
+				</canvas>
+				<noscript>
+					<p>JavaScript is required to view the contents of this page.</p>
+				</noscript>
+				<div id="login" class="hover">
+				  <p>
+				  Want to visualize your habits? -  <a href="javascript:startLogin()">Log In Using Google Latitude</a> to try it out.
+				  </p>
+				  <p>
+				  Want to see a demo? <a href="javascript:startDemo()">Watch</a>
+				  </p>
+				</div>
+				<div id="endcard" class="hover">
+				  <p> <a href="javascript:startAgain()">Again</a> <a href="javascript:snapshot()">Download</a></p>
+				</div>
+	    	</div>
+		<div>
+			<h1>Location Visualization</h1>
+			<!--<div id="screenshot"> <a href="javascript:snapshot()">take a screenshot</a> </div> -->
+			<p id="description">
+			  See your location habits. Log in using google latitude to see the patterns of places you go with the patterns of when you're active.
+			</p>
+			<p>
+			Built with <a href="http://processing.org" title="Processing">Processing</a>
+			and <a href="http://processingjs.org" title="Processing.js">Processing.js</a>
+			</p>
+		</div>
+	</body>
+</html>
