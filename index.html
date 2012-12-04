@@ -297,7 +297,7 @@ function makeWeekTimelines(weeks) {
 
 function guessScale(weeks) {
   var width = 0.07;
-  var height = 0.07;
+  var height = 0.045;
   console.log(weeks[0]);
 
   var index = ransac(weeks);
@@ -306,7 +306,7 @@ function guessScale(weeks) {
   g_lon = centerlon+width/2;
   g_lat = centerlat-height/2;
   g_lon_scale = width;
-  g_lon_scale = height;
+  g_lat_scale = height;
 
   //console.log(" New: g_lon:"+g_lon+", g_lat:"+g_lat+" g_lon_scale:"+g_lon_scale+" g_lat_scale:"+g_lat_scale);
 }
@@ -595,6 +595,15 @@ float path_stroke = 4;
 float me_circle_size = 7;
 float bottom_spacing = 50;
 float opacity = 0;
+
+/** No.
+$(window).resize(function() {
+  externals.canvas.width = window.innerWidth;
+  externals.canvas.height = window.innerHeight;
+  width = window.innerWidth;
+  height = window.innerHeight;
+});
+**/
 
 void setup() {
   size(window.innerWidth, window.innerHeight, P2D);
