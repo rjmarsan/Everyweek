@@ -181,6 +181,17 @@ function startAgain() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
 var timeline = new History();
 var weeks = [];
 var weektimelines = [];
@@ -200,6 +211,7 @@ var parse = function(data) {
   //console.log(weeks);
   weektimelines = makeWeekTimelines(weeks);
   timeline.setHistory(data);
+  guessScale(weektimelines);
   initActivity();
   initWeeks();
   dataisready = true;
@@ -275,6 +287,49 @@ function makeWeekTimelines(weeks) {
   return timelines;
 }
 
+function guessScale(weeks) {
+  var width = 0.05;
+  var height = 0.05;
+  console.log(weeks[0]);
+
+  var index = ransac(weeks);
+  var centerlon = weeks[index].mostpoplon;
+  var centerlat = weeks[index].mostpoplat;
+  g_lon = centerlon+width/2;
+  g_lat = centerlat-height/2;
+  g_lon_scale = width;
+  g_lon_scale = height;
+
+  //console.log(" New: g_lon:"+g_lon+", g_lat:"+g_lat+" g_lon_scale:"+g_lon_scale+" g_lat_scale:"+g_lat_scale);
+}
+
+function ransac(weeks) {
+  var best = [0,10000000];
+  for (var x=0; x<10; x++) {
+    var option = ransacIter(weeks);
+    if (option[1] < best[1]) 
+      best = option;
+  }
+  return best[0];
+}
+
+function ransacIter(weeks) {
+  var randomindex = Math.floor(Math.random()*weeks.length);
+  var lon = weeks[randomindex].mostpoplon;
+  var lat = weeks[randomindex].mostpoplat;
+  var disttotal = 0;
+  for (i in weeks) {
+    var week = weeks[i];
+    var lon2 = week.mostpoplon;
+    var lat2 = week.mostpoplat;
+    var d = dist(lon, lat, lon2, lat2);
+    disttotal += d;
+  }
+  disttotal = disttotal / weeks.length;
+  return [randomindex, disttotal];
+}
+
+
 
 var initActivity = function() {
   activity = [];
@@ -319,6 +374,8 @@ function History() {
   this.curlat = 0;
   this.curlon = 0;
   this.distance = 0;
+  this.mostpoplon = 0;
+  this.mostpoplat = 0;
 }
 History.prototype.setHistory = function(list) {
     this.history = list;
@@ -326,6 +383,7 @@ History.prototype.setHistory = function(list) {
     this.currentindex = 0;
     this.now = getStartOfWeek(new Number(this.firsttime));
     this.firsttime = this.now;
+    this.findCenter(list);
     //console.log("First time: "+this.firsttime+ " now "+this.now);
 };
 History.prototype.update = function(amount) {
@@ -392,6 +450,43 @@ History.prototype.areAnyInRange = function() {
 	return true;
     }
     return false;
+};
+
+var DIST_THRESH = 1; //good radius.
+History.prototype.findCenter = function() {
+  var best = [0,0,0,0];
+  for (var x=0; x<10; x++) {
+    var calc = this.findCenterInner();
+    //console.log("For run "+x+" got "+calc);
+    if (calc[3] > best[3]) {
+      best = calc;
+    }
+  }
+
+  //console.log("FINAL "+best);
+  this.mostpoplon = best[0];
+  this.mostpoplat = best[1];
+  this.mostpopcount = best[3];
+};
+History.prototype.findCenterInner= function() {
+    var randindex = Math.floor(Math.random()*this.history.length);
+    var plon = this.history[randindex].longitude;
+    var plat = this.history[randindex].latitude;
+    var pdist = 0;
+    var goodcount = 1;
+    for (var i=0; i<this.history.length; i++) {
+      var lon = this.history[i].longitude;
+      var lat = this.history[i].latitude;
+      var d = dist(lon,lat, plon, plat);
+      if (d < DIST_THRESH) {
+	d = Math.sqrt(d);
+	plon = (plon*goodcount+lon)/(goodcount+1);
+	plat = (plat*goodcount+lat)/(goodcount+1);
+	pdist = (pdist*goodcount+d)/(goodcount+1);
+	goodcount += 1;
+      }
+    }
+    return [plon,plat,pdist,goodcount];
 };
 
 History.prototype.isInRange = function() {
@@ -491,6 +586,7 @@ float history_small_dot_size = 3;
 float path_stroke = 4;
 float me_circle_size = 7;
 float bottom_spacing = 50;
+float opacity = 0;
 
 void setup() {
   size(800,800, P2D);
@@ -525,11 +621,23 @@ void draw() {
     sonification.start();
     updateTime();
     drawAnimation(false);
+    drawFadeIn();
   } else {
     background(0);
     drawLoading();
     sonification.stop();
   }
+}
+
+void drawFadeIn() {
+  if (opacity >= 1) return;
+  pushStyle();
+  rectMode(CORNER);
+  noStroke();
+  fill(0,0,0,255-opacity*255);
+  rect(0,0,width,height)
+  opacity += 0.03;
+  popStyle();
 }
 
 void drawAnimation(boolean prettyup) {

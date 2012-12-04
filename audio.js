@@ -63,7 +63,7 @@ function Audio() {
 
     this.Noise = function(audiolet) {
         AudioletGroup.apply(this, [audiolet, 0, 2]);
-	console.log(this.outputs);
+	//console.log(this.outputs);
         this.noise = new WhiteNoise(this.audiolet);
         this.noisefilter = new BandPassFilter(this.audiolet, 100);
         this.noisefilter2 = new BandPassFilter(this.audiolet, 100);
@@ -124,7 +124,7 @@ Audio.prototype.updateTime = function(hourinweek) {
     this.noise.noisefilter2.frequency.setValue(hourfreq*0.75);
     var volume = (1-hour/24)*0.2 + 0.05;
     var synthvolume = (1-hour/24)*0.03 + 0.01;
-    console.log(hourinweek);
+    //console.log(hourinweek);
     //if ((hourinweek*100) % 2 < 1) {
     if (Math.random() < 0.3) {
         synthvolume = 0;
@@ -214,7 +214,7 @@ function Sonification() {
         var range = 3-(week)%4;
         var offset = (range+3)*12;
         var type = 3-range; //square, saw, etc.
-        console.log("Volume: "+vol+" note: "+(offset+note));
+        //console.log("Volume: "+vol+" note: "+(offset+note));
 	try {
 		if (audio && audio.ready) {
 			audio.ping(offset+note, vol/3, type);
@@ -233,7 +233,7 @@ function Sonification() {
         var range = 3-(week)%4;
         var offset = (range+3)*12;
         var type = 3-range; //square, saw, etc.
-        console.log("offset: "+offset+" for range: "+range+" and type: "+type);
+        //console.log("offset: "+offset+" for range: "+range+" and type: "+type);
 		try {
 			if (audio && audio.ready) {
 				audio.ping(offset+note, Math.sqrt(vel), type);
