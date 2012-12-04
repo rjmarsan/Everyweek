@@ -14,7 +14,7 @@
 		+ - - - - - - - - - - - - - - - - - - - - -->
 		<style type="text/css">
 	body {
-	  background-color: #000; color: #888; line-height: normal;
+	  background-color: #000; color: #666; line-height: normal;
 	  font-family: Lucida Grande, Lucida Sans, Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
 	  font-size: 11px; font-weight: normal; text-decoration: none;
 		  line-height: 1.5em;
@@ -23,7 +23,7 @@
 		border: 0px solid transparent;
 	}
 	a, a:link, a:visited, a:active, a:hover { 
-		color: #777; text-decoration: underline;
+		color: #666; text-decoration: underline;
 	}
 	h1 {
 	    font-family: Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
@@ -313,14 +313,20 @@ History.prototype.setHistory = function(list) {
 };
 History.prototype.update = function(amount) {
     this.now += amount;
-    if (!this.history || this.currentindex+1 >= this.history.length) { return; }
+    if (!this.history || this.currentindex+1 >= this.history.length) { 
+      this.finish();
+      return; 
+    }
     //println("starting update by "+amount+" now at "+this.now+" with curindex attt "+this.currentindex);
     this.isnewlocation = false;
     while (this.history[this.currentindex+1].timestampMs < this.now) {
       //println("Not there yet: "+this.currentindex+" looking for "+this.now+" and got "+history[this.currentindex+1].timestampMs);
       this.currentindex += 1;
       this.isnewlocation = true;
-      if (this.currentindex+2 >= this.history.length) { return; }
+      if (this.currentindex+2 >= this.history.length) { 
+	this.finish();
+	return; 
+      }
     }
    // println("Calling update by "+amount+" now at "+this.now+" with curindex attt "+this.currentindex);
     this.curitem = this.history[this.currentindex];
@@ -332,6 +338,11 @@ History.prototype.update = function(amount) {
     this.curlat = this.getInterpLat();
     this.curlon = this.getInterpLon();
     this.distance = dist(this.lastlat, this.lastlon, this.curlat, this.curlon);
+};
+History.prototype.finish = function() {
+    this.isnewlocation = false;
+    this.distance = 0;
+    this.nextitem = 0;
 };
 History.prototype.isOkToInterp = function() {
     return (this.nextitem && this.duration < 1000*60*60*6 && this.curitem.timestampMs <= this.now);
@@ -712,7 +723,7 @@ void drawTimeline(boolean prettyup) {
 
   float spaceh = bottom_spacing*mscale;
   float spacing = width/7;
-  fill(othercolor, 100);
+  fill(othercolor, 150);
   textAlign(RIGHT,BOTTOM);
   if (prettyup) {
     long start = new Number(weektimelines[0].history[0].timestampMs);
