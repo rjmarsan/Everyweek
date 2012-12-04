@@ -12,23 +12,40 @@
 		+    and: http://processingjs.org/
 		+
 		+ - - - - - - - - - - - - - - - - - - - - -->
+		<link href='http://fonts.googleapis.com/css?family=Nixie+One' rel='stylesheet' type='text/css'>
+
 		<style type="text/css">
 	body {
-	  background-color: #000; color: #666; line-height: normal;
+	  background-color: #000; color: #888; line-height: normal;
 	  font-family: Lucida Grande, Lucida Sans, Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
-	  font-size: 11px; font-weight: normal; text-decoration: none;
-		  line-height: 1.5em;
+	  font-family: 'Nixie One', cursive;
+	  font-size: 1em; font-weight: normal; text-decoration: none;
+	  line-height: 1.5em;
 	}
 	a img { 
 		border: 0px solid transparent;
 	}
 	a, a:link, a:visited, a:active, a:hover { 
-		color: #666; text-decoration: underline;
+		color: #888; 
+		padding-bottom: 3px;
+		text-decoration: none;
+		border-bottom: 1px solid #444;
 	}
 	h1 {
-	    font-family: Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
+		font-family: 'Nixie One', cursive;
 		width: 100%; letter-spacing: 0.1em;
-		margin-bottom: 1em; font-size: 1.65em;
+		margin-bottom: 1em; font-size: 1.6em;
+	}
+	#content {
+	  color: #999999;
+	}
+
+	#text h1 {
+	    font-size: 1.35em;
+	}
+	#text p {
+	    font-size: 0.9em;
+	    line-height: 1.6em;
 	}
 	canvas { 
 		display: block; 
@@ -53,7 +70,7 @@
 		text-align: center;
 		top: 370px;
 		width: 800px;
-		font-size: 1.7em;
+		font-size: 1.2em;
 	}
 	.right {
 		display: block;
@@ -420,6 +437,8 @@ Time of the week indication to show when through the week it's at
 ******/
 
 
+/* @pjs font="http://themes.googleusercontent.com/static/fonts/nixieone/v4/gQ0PT3rPU_Et2ExNz-ahmrO3LdcAZYWl9Si6vvxL-qU.woff" */
+
 
 /** globals **/
 window.snapshot = function() {
@@ -484,7 +503,7 @@ void setup() {
   me_secondary.background(250);
   me_secondary.endDraw();
   me_graphics = createGraphics(width,height, P2D);
-  font = loadFont("Courier New");
+  font = loadFont("Nixie One");
   textFont(font, font_size*mscale);
   max_weeks = 1;
   setupData();
@@ -816,7 +835,7 @@ function getDayText(int day) {
 				  </p>
 				</div>
 				<div id="endcard" class="hover">
-				  <p> <a href="javascript:startAgain()">Again</a> <a href="javascript:snapshot()">Download</a></p>
+				  <p> <a href="javascript:startAgain()">Again</a> &nbsp; &nbsp; &nbsp; &nbsp; <a href="javascript:snapshot()">Download</a></p>
 				</div>
 	    	</div>
 		<div id="text">
