@@ -873,9 +873,9 @@ void drawTimeline(boolean prettyup) {
     long start = new Number(weektimelines[0].history[0].timestampMs);
     History endweek = weektimelines[weektimelines.length-1];
     long end = new Number(endweek.history[endweek.history.length-1].timestampMs);
-    text(new Date(start).toDateString()+" - "+new Date(end).toDateString(),width-15*mscale,height-spaceh-10*mscale);
+    text(new Date(start).toDateString()+" - "+new Date(end).toDateString(),width-35*mscale,height-spaceh-10*mscale);
   } else {
-    text(day+ " - Week "+min(max_weeks, weektimelines.length),width-15*mscale,height-spaceh-10*mscale);
+    text(day+ " - Week "+min(max_weeks, weektimelines.length),width-35*mscale,height-spaceh-10*mscale);
     //println("::: = "+getDayText(nowdate.getDay())+" at "+nowdate.toTimeString());
   }
 
