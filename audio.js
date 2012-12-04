@@ -13,6 +13,10 @@ if (typeof AudioContext == "function") {
 function Audio() {
     this.ready = false;
     this.audiolet = new Audiolet();
+
+
+    /** Left side **/
+
     this.envelope = new ADSREnvelope(this.audiolet, 0, 2, 0.1, 1, 2);
     this.gain = new Gain(this.audiolet, 0);
     this.reverb = new Reverb(this.audiolet, 0.5, 0.8, 0.2);
@@ -58,23 +62,33 @@ function Audio() {
     extend(this.Synth, AudioletGroup);
 
     this.Noise = function(audiolet) {
-        AudioletGroup.apply(this, [audiolet, 0, 1]);
+        AudioletGroup.apply(this, [audiolet, 0, 2]);
+	console.log(this.outputs);
         this.noise = new WhiteNoise(this.audiolet);
         this.noisefilter = new BandPassFilter(this.audiolet, 100);
+        this.noisefilter2 = new BandPassFilter(this.audiolet, 100);
         this.noisesynth = new DampedCombFilter(this.audiolet, 0.5, 0.01, 0.10, 0.2);
         this.synth = new Saw(this.audiolet, 100);
+	this.synthNoteIndex = 0;
         this.sawfilter = new LowPassFilter(this.audiolet, 1600);
         this.synthgain = new Gain(this.audiolet, 0.2);
         this.noisegain = new Gain(this.audiolet, 0.4);
+	this.panSynth = new Pan(this.audiolet, 0.9);
+	this.panNoise = new Pan(this.audiolet, 0.1);
         
         this.synth.connect(this.sawfilter);
         this.sawfilter.connect(this.synthgain);
-        this.synthgain.connect(this.outputs[0]);
+        this.synthgain.connect(this.panSynth);
+	this.panSynth.connect(this.outputs[0]);
 
         this.noise.connect(this.noisefilter);
-        this.noisefilter.connect(this.noisesynth);
+        this.noise.connect(this.noisefilter2);
+        this.noisefilter2.connect(this.noisesynth);
+        this.noisefilter.connect(this.noisegain);
         this.noisesynth.connect(this.noisegain);
-        this.noisegain.connect(this.outputs[0]);
+        this.noisegain.connect(this.panNoise);
+        this.panNoise.connect(this.outputs[1]);
+        this.panNoise.connect(this.outputs[0]);
     };
     extend(this.Noise, AudioletGroup);
     this.noise = new this.Noise(this.audiolet);
@@ -107,20 +121,30 @@ Audio.prototype.updateTime = function(hourinweek) {
     var hournote = 24+hour*2;
     var hourfreq = Math.pow(2, (hournote-69)/12)*440;
     this.noise.noisefilter.frequency.setValue(hourfreq);
+    this.noise.noisefilter2.frequency.setValue(hourfreq*0.75);
     var volume = (1-hour/24)*0.2 + 0.3;
-    var synthvolume = (1-hour/24)*0.05 + 0.03;
+    var synthvolume = (1-hour/24)*0.02 + 0.01;
     console.log(hourinweek);
     //if ((hourinweek*100) % 2 < 1) {
-    if (Math.random() < 0.8) {
+    if (Math.random() < 0.3) {
         synthvolume = 0;
     }
     this.noise.noisegain.gain.setValue(volume);
     this.noise.noisesynth.delayTime.setValue(Math.random()/100+0.01);
     //console.log("Setting hour "+hourinweek+ " to "+hour+" and "+hourfreq+" and "+volume);
 
-    var randomfreq = key + 60 + notes[dayinweek%notes.length];//Math.pow(2, (Math.random()*50+30-69)/12)*440;
+    var index = this.noise.synthNoteIndex;
+    if (hourinweek % 24 > 12) { 
+	index += 1;
+    } else {
+	index -= 1;
+	if (index < 0) index = notes.length - 1; 
+    }
+    index = Math.abs(index) % notes.length;
+    var randomfreq = key + 60 + notes[index];//Math.pow(2, (Math.random()*50+30-69)/12)*440;
     //var randomfreq = Math.pow(2, (Math.random()*50+30-69)/12)*440;
     this.noise.synth.frequency.setValue(mtof(randomfreq));
+    this.noise.synthNoteIndex = index;
     this.noise.synthgain.gain.setValue(synthvolume);
 };
 
@@ -185,18 +209,18 @@ function Sonification() {
         var xcoord = Math.floor(x*size);
         var ycoord = Math.floor(y*size);
         //console.log("for "+x1+", "+y1+"  and  "+x2+","+y2+" we picked "+x+", "+y+" which is "+xcoord+","+ycoord); 
-        var note = notegrid[ycoord][xcoord];
+        var note = notes[Math.abs(xcoord+ycoord - week) % notes.length];
         var vol = Math.min(1, Math.abs(vel));
         var range = 3-(week)%4;
         var offset = (range+3)*12;
         var type = 3-range; //square, saw, etc.
         console.log("Volume: "+vol+" note: "+(offset+note));
-		try {
-			if (audio && audio.ready) {
-				audio.ping(offset+note, vol, type);
-			}
-		} catch(e) {
+	try {
+		if (audio && audio.ready) {
+			audio.ping(offset+note, vol, type);
 		}
+	} catch(e) {
+	}
     }
 
     this.ping2 = function(x1, y1, x2, y2, vel, ismain, week) {
@@ -221,13 +245,14 @@ function Sonification() {
 
 
 
-var notes = [0, 5, 7, 9, 12, 17, 19, 21, 24, 29, 31, 33, 36];
-var notes = [0, 3, 5, 9];
+//var notes = [0, 5, 7, 9, 12, 17, 19, 21, 24, 29, 31, 33, 36];
+var notes = [0, 3, 5, 7, 9, 12, 15, 17, 19, 21, 24, 27, 29, 31, 33, 36];
+//var notes = [0, 3, 5, 9];
 var origlength = notes.length;
 var key = 0;
-for (var x=0; x<origlength*1.5; x++) {
-    notes.push(notes[x]+12);
-}
+//for (var x=0; x<origlength*1.5; x++) {
+//    notes.push(notes[x]+12);
+//}
 //notes = notes.concat(notes);
 //notes = notes.concat(notes);
 //notes = notes.concat(notes);
@@ -266,7 +291,7 @@ function toggleMute() {
 var sonification = new Sonification();
 try {
 	var audio = new Audio();
-	audio.turnOnOff(1);
+	//audio.turnOnOff(1);
 	hasaudio = true;
 } catch (e) {
 	hasaudio = false;
