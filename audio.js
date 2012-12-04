@@ -67,7 +67,7 @@ function Audio() {
         this.noise = new WhiteNoise(this.audiolet);
         this.noisefilter = new BandPassFilter(this.audiolet, 100);
         this.noisefilter2 = new BandPassFilter(this.audiolet, 100);
-        this.noisesynth = new DampedCombFilter(this.audiolet, 0.5, 0.01, 0.10, 0.2);
+        this.noisesynth = new Tanh(this.audiolet);
         this.synth = new Saw(this.audiolet, 100);
 	this.synthNoteIndex = 0;
         this.sawfilter = new LowPassFilter(this.audiolet, 1600);
@@ -122,15 +122,15 @@ Audio.prototype.updateTime = function(hourinweek) {
     var hourfreq = Math.pow(2, (hournote-69)/12)*440;
     this.noise.noisefilter.frequency.setValue(hourfreq);
     this.noise.noisefilter2.frequency.setValue(hourfreq*0.75);
-    var volume = (1-hour/24)*0.2 + 0.3;
-    var synthvolume = (1-hour/24)*0.02 + 0.01;
+    var volume = (1-hour/24)*0.2 + 0.05;
+    var synthvolume = (1-hour/24)*0.03 + 0.01;
     console.log(hourinweek);
     //if ((hourinweek*100) % 2 < 1) {
     if (Math.random() < 0.3) {
         synthvolume = 0;
     }
     this.noise.noisegain.gain.setValue(volume);
-    this.noise.noisesynth.delayTime.setValue(Math.random()/100+0.01);
+   // this.noise.noisesynth.delayTime.setValue(Math.random()/100+0.01);
     //console.log("Setting hour "+hourinweek+ " to "+hour+" and "+hourfreq+" and "+volume);
 
     var index = this.noise.synthNoteIndex;
@@ -217,7 +217,7 @@ function Sonification() {
         console.log("Volume: "+vol+" note: "+(offset+note));
 	try {
 		if (audio && audio.ready) {
-			audio.ping(offset+note, vol, type);
+			audio.ping(offset+note, vol/3, type);
 		}
 	} catch(e) {
 	}
