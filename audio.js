@@ -85,7 +85,7 @@ function Audio() {
         this.noise.connect(this.noisefilter2);
         this.noisefilter2.connect(this.noisesynth);
         this.noisefilter.connect(this.noisegain);
-        this.noisesynth.connect(this.noisegain);
+        //this.noisesynth.connect(this.noisegain);
         this.noisegain.connect(this.panNoise);
         this.panNoise.connect(this.outputs[1]);
         this.panNoise.connect(this.outputs[0]);
