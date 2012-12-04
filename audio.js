@@ -134,30 +134,48 @@ function mtof(val) {
 
 function Sonification() {
     this.start = function () {
-        if (audio && audio.ready) {
-            audio.turnOnOff(1);
-        }
+		try {
+			if (audio && audio.ready) {
+				audio.turnOnOff(1);
+			}
+		} catch (e) {
+
+		}
     };
     this.stop = function () {
-        if (audio && audio.ready) {
-            audio.turnOnOff(0);
-        }
+		try {
+			if (audio && audio.ready) {
+				audio.turnOnOff(0);
+			}
+		} catch ( e) {
+
+		}
     };
     this.volume = function(vol) {
-        if (audio && audio.ready) {
-            audio.setVolume(vol);
-        }
+		try {
+			if (audio && audio.ready) {
+				audio.setVolume(vol);
+			}
+		} catch (e) {
+		}
     };
     this.getVolume = function() {
-        if (audio && audio.ready) {
-            return audio.volume.gain.getValue();
-        }
-        return 1;
+		try {
+			if (audio && audio.ready) {
+				return audio.volume.gain.getValue();
+			}
+			return 1;
+		} catch (e) {
+			return 0;
+		}
     }
     this.setWeekProgress = function(progress) {
-        if (audio && audio.ready) {
-            audio.updateTime(progress*7*24);
-        }
+		try {
+			if (audio && audio.ready) {
+				audio.updateTime(progress*7*24);
+			}
+		} catch(e) {
+		}
     }
     this.ping = function(x1, y1, x2, y2, vel, ismain, week) {
         var x = (x1+x2)/2;
@@ -173,9 +191,12 @@ function Sonification() {
         var offset = (range+3)*12;
         var type = 3-range; //square, saw, etc.
         console.log("Volume: "+vol+" note: "+(offset+note));
-        if (audio && audio.ready) {
-            audio.ping(offset+note, vol, type);
-        }
+		try {
+			if (audio && audio.ready) {
+				audio.ping(offset+note, vol, type);
+			}
+		} catch(e) {
+		}
     }
 
     this.ping2 = function(x1, y1, x2, y2, vel, ismain, week) {
@@ -189,9 +210,12 @@ function Sonification() {
         var offset = (range+3)*12;
         var type = 3-range; //square, saw, etc.
         console.log("offset: "+offset+" for range: "+range+" and type: "+type);
-        if (audio && audio.ready) {
-            audio.ping(offset+note, Math.sqrt(vel), type);
-        }
+		try {
+			if (audio && audio.ready) {
+				audio.ping(offset+note, Math.sqrt(vel), type);
+			}
+		} catch (e) {
+		}
     }
 }
 
@@ -224,10 +248,6 @@ function makeGrid() {
 var notegrid = makeGrid();
 
 
-var audio = new Audio();
-var sonification = new Sonification();
-audio.turnOnOff(1);
-
 
 function toggleMute() {
     if (sonification.getVolume() <= 0) {
@@ -241,4 +261,13 @@ function toggleMute() {
     } else {
         $("#volume-button").text("Mute");
     }
+}
+
+var sonification = new Sonification();
+try {
+	var audio = new Audio();
+	audio.turnOnOff(1);
+	hasaudio = true;
+} catch (e) {
+	hasaudio = false;
 }
