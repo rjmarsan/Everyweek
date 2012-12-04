@@ -144,7 +144,7 @@ function gethistory(token) {
 function getHistoryUntil(token, until, accumulated, progress, finished) {
   jQuery.getJSON("https://www.googleapis.com/latitude/v1/location?granularity=best&max-time="+until+"&max-results=1000&access_token="+token, function(data) {
     //console.log("until: "+until);
-    if (data.data.items && progress.counter < 50) {
+    if (data && data.data && data.data.items && data.data.items.length > 0 && progress.counter < 50) {
       //console.log(data);
       //data.data.items.reverse();
       var smallest = data.data.items[data.data.items.length-1].timestampMs;
