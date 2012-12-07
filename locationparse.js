@@ -5,10 +5,10 @@ self.onmessage= function(event) {
 	parse(event.data.data);
 }
 function floor(x) {
-	return Math.floor(x);
+  return Math.floor(x);
 }
-function dist(x1,x2,y1,y2) {
-	return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+function dist(x1,y1,x2,y2) {
+  return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 }
 
 g_lon = -88.2; //12;
@@ -25,13 +25,16 @@ var parse = function(data) {
   //console.log(data);
   //findPlaces(data, 0.003);
   //drawonce();
-  var weeks = makeWeekLists(data);
+  weeks = makeWeekLists(data);
   //while (weeks.length > 1) weeks.pop();
   //console.log(weeks);
   var weektimelines = makeWeekTimelines(weeks);
   var timeline = new History();
   timeline.setHistory(data);
   guessScale(weektimelines);
+  timeline.findCenter();
+  timeline.findBestBoundingBox(.99);
+  var bestbox = timeline.bestbox;
   //initActivity();
   //initWeeks();
   //dataisready = true;
@@ -44,6 +47,10 @@ var parse = function(data) {
   data.g_lon_scale = g_lon_scale;
   data.g_lat = g_lat;
   data.g_lat_scale = g_lat_scale;
+  data.g_lon = bestbox.r;
+  data.g_lon_scale = bestbox.r-bestbox.l;
+  data.g_lat = bestbox.t;
+  data.g_lat_scale = bestbox.b-bestbox.t;
   self.postMessage(data);
 };
 
@@ -271,18 +278,21 @@ History.prototype.areAnyInRange = function() {
 var DIST_THRESH = 1; //good radius.
 History.prototype.findCenter = function() {
   var best = [0,0,0,0];
+  var bestcount = 0;
   for (var x=0; x<10; x++) {
     var calc = this.findCenterInner();
+    var count = calc[3];
     //console.log("For run "+x+" got "+calc);
-    if (calc[3] > best[3]) {
+    if (count > bestcount) {
       best = calc;
+      bestcount = count;
     }
   }
 
   //console.log("FINAL "+best);
   this.mostpoplon = best[0];
   this.mostpoplat = best[1];
-  this.mostpopcount = best[3];
+  this.mostpopcount = bestcount;
 };
 History.prototype.findCenterInner= function() {
     var randindex = Math.floor(Math.random()*this.history.length);
@@ -293,9 +303,8 @@ History.prototype.findCenterInner= function() {
     for (var i=0; i<this.history.length; i++) {
       var lon = this.history[i].longitude;
       var lat = this.history[i].latitude;
-      var d = dist(lon,lat, plon, plat);
+      var d = dist(lon, lat, plon, plat);
       if (d < DIST_THRESH) {
-	d = Math.sqrt(d);
 	plon = (plon*goodcount+lon)/(goodcount+1);
 	plat = (plat*goodcount+lat)/(goodcount+1);
 	pdist = (pdist*goodcount+d)/(goodcount+1);
@@ -314,7 +323,105 @@ History.prototype.isInRange = function() {
       return false;
 };
 
+History.prototype.findRandomBoundingBox = function(percentage) {
+    var l = Infinity;
+    var r = -Infinity;
+    var t = Infinity;
+    var b = -Infinity;
+    for (var x = 0; x<this.history.length*percentage; x++) {
+      var randomindex = Math.floor(Math.random()*this.history.length);
+      var item = this.history[randomindex];
+      var d = dist(item.longitude, item.latitude, this.mostpoplon, this.mostpoplat);
+      if (d < DIST_THRESH) {
+	l = item.longitude < l ? item.longitude : l; 
+	r = item.longitude > r ? item.longitude : r;
+	t = item.latitude  < t ? item.latitude  : t;
+	b = item.latitude  > b ? item.latitude  : b;
+      }
+    }
+    return {l:l,r:r,t:t,b:b};
+}
 
+History.prototype.evaluateBoundingBoxes = function(boxes) {
+  var passed = [];
+  var failed = [];
+  var results = [];
+  for (var b = 0; b<boxes.length; b++) {
+    results.push(0);
+    passed.push(0);
+    failed.push(0);
+  }
+  for (var x = 0; x<this.history.length; x++) {
+    var item = this.history[x];
+    var d = dist(item.longitude,item.latitude, this.mostpoplon, this.mostpoplat);
+    if (d < DIST_THRESH) {
+      for (var b = 0; b<boxes.length; b++) {
+	if (evaluateBox(boxes[b], item)) {
+	  passed[b] += 1;
+	} else {
+	  failed[b] += 1;
+	}
+      }
+    }
+  }
+  for (var b = 0; b<boxes.length; b++) {
+    results[b] = passed[b]/(passed[b]+failed[b]+0.0);
+  }
+  return results;
+}
+
+History.prototype.findBestBoundingBox = function(threshold) {
+  var boxes = [];
+  for (var b = 0; b<100; b++) {
+    boxes.push(this.findRandomBoundingBox(.03));
+  }
+  results = this.evaluateBoundingBoxes(boxes);
+  passed = [];
+  for (var b=0; b<boxes.length; b++) {
+    if (results[b] > threshold) {
+      passed.push(boxes[b]);
+    }
+  }
+  if (passed.length == 0 {
+    var bestindex = 0;
+    var bestval = 0;
+    for (var i=0;i<results.length;i++)  {
+      if (results[i] > bestval) {
+	bestval = results[i];
+	bestindex = i;
+      }
+    }
+    passed.push(boxes[i]);
+  }
+  this.boxes = boxes;
+  this.results = results;
+  this.passed = passed;
+  this.bestbox = smallestBox(passed);
+}
+
+function evaluateBox(box, item) {
+  var x = item.longitude;
+  var y = item.latitude;
+  return box.r >= x && box.l <= x && box.t <= y && box.b >= y;
+}
+
+function boxSize(box) {
+  return (box.r-box.l)+(box.b-box.t);
+}
+
+function smallestBox(boxes) {
+  if (boxes.length <= 0) return null;
+  var bestsize = Infinity;
+  var bestbox = boxSize(boxes[0]);
+  for (var b = 0; b<boxes.length; b++) {
+    var size = boxSize(boxes[b]);
+    if (bestsize > size) {
+      bestsize = size;
+      bestbox = boxes[b];
+    }
+  }
+  return bestbox;
+}
 
 
 
