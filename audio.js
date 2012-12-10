@@ -256,7 +256,7 @@ var key = 0;
 //notes = notes.concat(notes);
 //notes = notes.concat(notes);
 //notes = notes.concat(notes);
-console.log(notes);
+//console.log(notes);
 function makeGrid() {
     var notegrid = [];
     var size = notes.length;
@@ -266,7 +266,7 @@ function makeGrid() {
             notegrid[y].push(notes[(x+y)%size]);
         }
     }
-    console.log(notegrid);
+    //console.log(notegrid);
     return notegrid;
 }
 
