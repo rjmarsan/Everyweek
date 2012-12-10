@@ -382,7 +382,7 @@ History.prototype.findBestBoundingBox = function(threshold) {
       passed.push(boxes[b]);
     }
   }
-  if (passed.length == 0 {
+  if (passed.length == 0) {
     var bestindex = 0;
     var bestval = 0;
     for (var i=0;i<results.length;i++)  {
