@@ -33,7 +33,7 @@ var parse = function(data) {
   timeline.setHistory(data);
   guessScale(weektimelines);
   timeline.findCenter();
-  timeline.findBestBoundingBox(.99);
+  timeline.findBestBoundingBox(.996);
   var bestbox = timeline.bestbox;
   //initActivity();
   //initWeeks();
@@ -43,14 +43,13 @@ var parse = function(data) {
   data.timeline = timeline;
   data.weeks = weeks;
   data.weektimelines = weektimelines;
-  data.g_lon = g_lon;
   data.g_lon_scale = g_lon_scale;
   data.g_lat = g_lat;
   data.g_lat_scale = g_lat_scale;
-  data.g_lon = bestbox.r;
-  data.g_lon_scale = bestbox.r-bestbox.l;
-  data.g_lat = bestbox.t;
-  data.g_lat_scale = bestbox.b-bestbox.t;
+  data.g_lon_scale = (bestbox.r-bestbox.l)*1.1;
+  data.g_lon = bestbox.r - data.g_lon_scale * 0.05;
+  data.g_lat_scale = (bestbox.b-bestbox.t)*1.1;
+  data.g_lat = bestbox.t - data.g_lat_scale * 0.05;
   self.postMessage(data);
 };
 
@@ -275,7 +274,7 @@ History.prototype.areAnyInRange = function() {
     return false;
 };
 
-var DIST_THRESH = 1; //good radius.
+var DIST_THRESH = 0.5; //good radius.
 History.prototype.findCenter = function() {
   var best = [0,0,0,0];
   var bestcount = 0;
@@ -372,7 +371,7 @@ History.prototype.evaluateBoundingBoxes = function(boxes) {
 
 History.prototype.findBestBoundingBox = function(threshold) {
   var boxes = [];
-  for (var b = 0; b<100; b++) {
+  for (var b = 0; b<200; b++) {
     boxes.push(this.findRandomBoundingBox(.03));
   }
   results = this.evaluateBoundingBoxes(boxes);
