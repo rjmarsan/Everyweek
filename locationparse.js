@@ -46,10 +46,10 @@ var parse = function(data) {
   data.g_lon_scale = g_lon_scale;
   data.g_lat = g_lat;
   data.g_lat_scale = g_lat_scale;
-  data.g_lon_scale = (bestbox.r-bestbox.l)*1.1;
-  data.g_lon = bestbox.r - data.g_lon_scale * 0.05;
+  data.g_lon_scale = (bestbox.r-bestbox.l)*1.2;
+  data.g_lon = bestbox.r + data.g_lon_scale * 0.1;
   data.g_lat_scale = (bestbox.b-bestbox.t)*1.1;
-  data.g_lat = bestbox.t - data.g_lat_scale * 0.05;
+  data.g_lat = bestbox.t - data.g_lat_scale * 0.1;
   self.postMessage(data);
 };
 
