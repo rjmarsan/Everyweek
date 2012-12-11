@@ -43,6 +43,10 @@
 	  color: #999999;
 	}
 
+	#title {
+	  display: none;
+	}
+
 	#text h1 {
 	    font-size: 1.35em;
 	}
@@ -73,6 +77,9 @@
 	#text h1 {
 	  width: 400px;
 	}
+	#volume {
+	  margin-bottom: 15px;
+	}
 	.hover {
 		display: none;
 		position: absolute;
@@ -94,6 +101,7 @@
 			<script type="text/javascript">alert("Your browser does not support the canvas tag.");</script>
 		<![endif]-->
 		<script src="jquery.js" type="text/javascript"></script>
+		<script src="jquery.scrollTo.min.js" type="text/javascript"></script>
 		<script src="google-oauth2.js" type="text/javascript"></script>
 		<script type="text/javascript">
 
@@ -108,8 +116,19 @@ function initGO2() {
   //GO2.login(false, true);
 }
 
+
+function readMore() {
+  showDescription();
+  $(window).scrollTo($("#text"), 300);
+}
+
 function hideLogin() {
+  $(window).scrollTo($("canvas"), 300);
   $("#login").fadeOut();
+  $("#again").fadeOut();
+  $("#title").fadeIn();
+  $("#nolatitude").fadeOut();
+  hideDescription();
 }
 
 function startLogin() {
@@ -119,6 +138,10 @@ function startLogin() {
 function startDemo() {
   hideLogin();
   demo();
+}
+
+function showErrorScreen() {
+  $("#nolatitude").fadeIn();
 }
 
 $(function() {
@@ -144,7 +167,11 @@ function gethistory(token) {
   downloadprogress.eventcount = 0;
   downloadprogress.smallest = new Date().getTime();
   getHistoryUntil(token, new Date().getTime(), [], downloadprogress, function(data) {
-    parse(data);
+    if (data.length <= 0) {
+      showErrorScreen();
+    } else {
+      parse(data);
+    }
     downloadprogress.isdownloading = false;
     downloadprogress.finished = true;
   });
@@ -860,10 +887,15 @@ function getDayText(int day) {
 				<div id="login" class="hover">
 				  <h1> EveryWeek </h1>
 				  <p>
-				  A Sonic and Visual Experience
+				  A Sonic and Visual Experience of a Week
 				  <p>
-				  <a href="javascript:startLogin()">Use Google Latitude</a> to start, or check out the 
-				  <a href="javascript:startDemo()">Demo</a>
+				  <a href="javascript:startLogin()">Use Google Latitude</a> to start, check out the 
+				  <a href="javascript:startDemo()">Demo</a>, or <a href="javascript:readMore()">read more</a>
+				  </p>
+				</div>
+				<div id="nolatitude" class="hover">
+				  <p>
+				  Sorry, Google Latitude has no location history for you. Try the <a href="javascript:startDemo()">demo</a> instead?
 				  </p>
 				</div>
 				<div id="endcard" class="hover">
@@ -872,7 +904,7 @@ function getDayText(int day) {
 	    	</div>
 		<div id="text">
 			<div class="right" id="volume"> <a id="volume-button" href="javascript:toggleMute()">Mute</a></div>
-			<h1>EveryWeek Visualization</h1>
+			<h1 id="title">EveryWeek Visualization</h1>
 			<!--<div id="screenshot"> <a href="javascript:snapshot()">take a screenshot</a> </div> -->
 			<div id="description" class="clear">
 			  <p>
@@ -891,7 +923,7 @@ function getDayText(int day) {
 			<a id="showdescription" href="javascript:showDescription()">show description</a> <a id="hidedescription" href="javascript:hideDescription()">hide</a>
 			  <script>
 			    $(function() {
-				hideDescription();
+				showDescription();
 			    });
 			    function hideDescription() {
 				$("#description").fadeOut();
