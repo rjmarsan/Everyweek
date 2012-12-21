@@ -2,7 +2,7 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title>EveryWeek - A Sonic/Visual Experience Built with Processing.js and Audiolet.js</title>
-		<link rel="icon"  type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAQAAVzABAEAjBQAaDwYAWjUGAGE6CQBrQQ0ATS8PAFhAJwBUQC8AbFI6AHVXPACBZk4A4NrWAPb19QAAAAAAAMmZmZmZmgAJIwAAAAAAcMIjPjA+PjAKpxIuMDMzMAm0Ii4zMzMACaIiLt3dMAAJtyIuIzPQAAm0Un5yM+IzKLRkfncy4iIotRF+dyLkIiq0QX53F+EiGrQUTkd34iIatEVu7u5iIVrBVVRBRFRVbAtGZGZla2uwAMu7u7u8vADAAwAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIABAADAAwAA" />
+		<link rel="icon"  type="image/x-icon" href="favicon.png"/>
 		<meta name="Generator" content="Processing" />
 		<!-- - - - - - - - - - - - - - - - - - - - - 
 		+
@@ -650,7 +650,9 @@ void updateTime() {
       //don't add if we fly somewhere. then we look very active.
       var day = new Date(timeline.now);
       int index = day.getDay()*24 + day.getHours();
-      activity[index] += currentweek.distance;
+      //activity[index] += min(width/5,currentweek.distance);
+      activity[index] += log(1+currentweek.distance);
+
     }
     if (isdone) {
       max_weeks += 1;
@@ -938,5 +940,18 @@ function getDayText(int day) {
 			    }
 			  </script>
 		</div>
+		<script type="text/javascript">
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-36986205-1']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		</script>
 	</body>
 </html>
