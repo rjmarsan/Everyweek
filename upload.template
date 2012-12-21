@@ -1,0 +1,61 @@
+<script>
+var save = {};
+save.upload = function (file, name) {
+	var xhr = new XMLHttpRequest();
+	fd = new FormData();
+
+
+	console.log("Executing");
+	// Populate the Post paramters.
+	fd.append('key', 'testing/'+name);
+	fd.append('AWSAccessKeyId', '$KEY$');
+	fd.append('acl', 'public-read');
+	fd.append('content-type', 'image/png');
+	fd.append('policy', "$POLICY$")
+	fd.append('signature',"$SIGNATURE$")
+	// This file object is retrieved from a file input.
+	fd.append('file', file);
+
+	xhr.upload.addEventListener("progress", uploadProgress, false);
+	xhr.addEventListener("load", uploadComplete, false);
+	xhr.addEventListener("error", uploadFailed, false);
+	xhr.addEventListener("abort", uploadCanceled, false);
+
+	xhr.open('POST', 'http://myweek.rj.io.s3.amazonaws.com/', true);
+	xhr.send(fd);
+};
+
+save.uploadCanvas = function(canvasuri, name) {
+    save.upload(dataURItoBlob(canvasuri), name);
+};
+
+function uploadProgress() {
+    console.log("Progress");
+}
+
+function uploadComplete() {
+    console.log("complete");
+}
+
+function uploadFailed() {
+    console.log("Upload failed");
+}
+
+function uploadCanceled() {
+    console.log("Upload canceled");
+}
+
+function dataURItoBlob(dataURI) {
+    var binary = atob(dataURI.split(',')[1]);
+    var array = [];
+    for(var i = 0; i < binary.length; i++) {
+        array.push(binary.charCodeAt(i));
+    }
+    return new Blob([new Uint8Array(array)], {type: 'image/png'});
+}
+
+
+window.addEventListener("message", function(event) {
+    save.uploadCanvas(event.data.canvas, event.data.name);
+}, false);
+</script>

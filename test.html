@@ -1,0 +1,33 @@
+
+<img id="uploaded" src="http://myweek.rj.io.s3.amazonaws.com/testing/customname.png"/>
+<canvas id="canvas" width="200" height="200">
+</canvas>
+
+<script>
+var canvas = document.getElementById('canvas');
+if (canvas.getContext) {
+	var ctx = canvas.getContext("2d");
+
+	ctx.fillStyle = "rgb(200,200,0)";
+	ctx.fillRect (10, 10, 55, 50);
+	
+	ctx.fillStyle = "rgba(200, 0, 200, 0.5)";
+	ctx.fillRect (30, 30, 55, 50);
+}
+
+function uploadCanvas() {
+	//upload(Base64Binary.decode(img));
+	var data = {};
+	data.name = "customname.png";
+	data.canvas = document.getElementById('canvas').toDataURL("image/png");
+	window.frames["uploadframe"].postMessage(data, "http://myweek.rj.io.s3.amazonaws.com");
+	//upload(document.getElementById('uploaded'));
+}
+
+</script>
+
+
+<div id="invisible" style="display: none">
+	<iframe name="uploadframe" src="http://myweek.rj.io.s3.amazonaws.com/upload.html" ></iframe>
+</div>
+<a href="javascript:uploadCanvas()">alternate js upload</a>
