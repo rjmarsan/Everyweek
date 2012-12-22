@@ -1,13 +1,14 @@
 <script>
 var save = {};
 save.upload = function (file, name) {
+    try {
 	var xhr = new XMLHttpRequest();
 	fd = new FormData();
 
 
 	console.log("Executing");
 	// Populate the Post paramters.
-	fd.append('key', 'testing/'+name);
+	fd.append('key', 'i/'+name);
 	fd.append('AWSAccessKeyId', '$KEY$');
 	fd.append('acl', 'public-read');
 	fd.append('content-type', 'image/png');
@@ -23,26 +24,51 @@ save.upload = function (file, name) {
 
 	xhr.open('POST', 'http://myweek.rj.io.s3.amazonaws.com/', true);
 	xhr.send(fd);
+    } catch(err)  {
+	//console.log("Failure "+ err);
+	uploadFailed();
+    }
 };
 
 save.uploadCanvas = function(canvasuri, name) {
-    save.upload(dataURItoBlob(canvasuri), name);
+    try {
+	save.upload(dataURItoBlob(canvasuri), name);
+    } catch(err) {
+	uploadFailed();
+    }
 };
 
-function uploadProgress() {
-    console.log("Progress");
+function uploadProgress(progress) {
+    //console.log("Progress");
+    var data = {};
+    //data.progress = progress;
+    data.isdone = false;
+    data.failed = false;
+    parent.postMessage(data, "http://weeks.rj.io");
 }
 
 function uploadComplete() {
-    console.log("complete");
+    //console.log("complete");
+    var data = {};
+    data.isdone = true;
+    data.failed = false;
+    parent.postMessage(data, "http://weeks.rj.io");
 }
 
 function uploadFailed() {
-    console.log("Upload failed");
+    //console.log("Upload failed");
+    var data = {};
+    data.isdone = true;
+    data.failed = true;
+    parent.postMessage(data, "http://weeks.rj.io");
 }
 
 function uploadCanceled() {
-    console.log("Upload canceled");
+    //console.log("Upload canceled");
+    var data = {};
+    data.isdone = true;
+    data.failed = true;
+    parent.postMessage(data, "http://weeks.rj.io");
 }
 
 function dataURItoBlob(dataURI) {

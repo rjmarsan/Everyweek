@@ -1,5 +1,10 @@
+<style>
+	body {
+		background: black;
+	}
 
-<img id="uploaded" src="http://myweek.rj.io.s3.amazonaws.com/testing/customname.png"/>
+</style>
+<img id="uploaded" src="http://myweek.rj.io.s3.amazonaws.com/i/customname.png"/>
 <canvas id="canvas" width="200" height="200">
 </canvas>
 
@@ -11,7 +16,7 @@ if (canvas.getContext) {
 	ctx.fillStyle = "rgb(200,200,0)";
 	ctx.fillRect (10, 10, 55, 50);
 	
-	ctx.fillStyle = "rgba(200, 0, 200, 0.5)";
+	ctx.fillStyle = "rgba(200, 0, 0, 0.5)";
 	ctx.fillRect (30, 30, 55, 50);
 }
 
@@ -24,6 +29,10 @@ function uploadCanvas() {
 	//upload(document.getElementById('uploaded'));
 }
 
+window.addEventListener("message", function(event) {
+	console.log(event.data);
+}, false);
+
 </script>
 
 
@@ -31,3 +40,35 @@ function uploadCanvas() {
 	<iframe name="uploadframe" src="http://myweek.rj.io.s3.amazonaws.com/upload.html" ></iframe>
 </div>
 <a href="javascript:uploadCanvas()">alternate js upload</a>
+
+<a target="_blank" href="javascript:shareOnFb()"><img src="facebook.png" alt="share on facebook"/></a>
+<a target="_blank" href="javascript:shareOnTwitter()"><img src="twitter.png" alt="share on twitter"/></a>
+<a target="_blank" href="javascript:shareOnGplus()"><img src="gplus.png" alt="share on google plus"/></a>
+<script type="text/javascript">
+	<!--
+	var shareurl = "http://weeks.rj.io/s?i=customimage";
+	var text="My Weeks";
+	function shareOnFb() {
+		var encodedurl = encodeURI(shareurl);
+		var encodedtext = encodeURI(text);
+		window.open("http://www.facebook.com/sharer.php?u="+encodedurl+"&t="+encodedtext, "fbWindow", "status = 1, height = 600, width = 500, resizable = 0" )
+	}
+	function shareOnGplus() {
+		var encodedurl = encodeURI(shareurl);
+		var encodedtext = encodeURI(text);
+		window.open("https://plus.google.com/share?url="+encodedurl, "twitterWindow", "status = 1, height = 600, width = 500, resizable = 0" )
+	}
+	function shareOnTwitter() {
+		var encodedurl = encodeURI(shareurl);
+		var encodedtext = encodeURI(text);
+		window.open("https://twitter.com/intent/tweet?url="+encodedurl+"&text="+encodedtext+"&hashtags=everyweek", "twitterWindow", "status = 1, height = 600, width = 500, resizable = 0" )
+	}
+	//-->
+</script>
+
+<span class='st_googleplus_large' displayText='Google +'></span>
+<span class='st_pinterest_large' displayText='Pinterest'></span>
+<span class='st_email_large' displayText='Email'></span>
+
+
+

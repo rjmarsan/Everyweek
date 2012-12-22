@@ -10,7 +10,7 @@ if (typeof AudioContext == "function") {
 **/
 
 
-function Audio() {
+function Audiom() {
     this.ready = false;
     this.audiolet = new Audiolet();
 
@@ -97,21 +97,21 @@ function Audio() {
     this.ready = true;
 }
 
-Audio.prototype.ping = function(midinote, volume, type) {
+Audiom.prototype.ping = function(midinote, volume, type) {
     var freq = Math.pow(2, (midinote-69)/12)*440;
     var synth = new this.Synth(this.audiolet, freq, volume, type);
     synth.connect(this.out);
 };
 
-Audio.prototype.setVolume = function(vol) {
+Audiom.prototype.setVolume = function(vol) {
     this.volume.gain.setValue(vol);
 };
 
-Audio.prototype.turnOnOff = function(val) {
+Audiom.prototype.turnOnOff = function(val) {
     this.envelope.gate.setValue(val);
 };
 
-Audio.prototype.updateTime = function(hourinweek) {
+Audiom.prototype.updateTime = function(hourinweek) {
     var hour = hourinweek % 24;
     hour = (hour+11)%24; //shift over
     hour = Math.abs(12-hour)*2;
@@ -159,8 +159,8 @@ function mtof(val) {
 function Sonification() {
     this.start = function () {
 		try {
-			if (audio && audio.ready) {
-				audio.turnOnOff(1);
+			if (audiom && audiom.ready) {
+				audiom.turnOnOff(1);
 			}
 		} catch (e) {
 
@@ -168,8 +168,8 @@ function Sonification() {
     };
     this.stop = function () {
 		try {
-			if (audio && audio.ready) {
-				audio.turnOnOff(0);
+			if (audiom && audiom.ready) {
+				audiom.turnOnOff(0);
 			}
 		} catch ( e) {
 
@@ -177,16 +177,16 @@ function Sonification() {
     };
     this.volume = function(vol) {
 		try {
-			if (audio && audio.ready) {
-				audio.setVolume(vol);
+			if (audiom && audiom.ready) {
+				audiom.setVolume(vol);
 			}
 		} catch (e) {
 		}
     };
     this.getVolume = function() {
 		try {
-			if (audio && audio.ready) {
-				return audio.volume.gain.getValue();
+			if (audiom && audiom.ready) {
+				return audiom.volume.gain.getValue();
 			}
 			return 1;
 		} catch (e) {
@@ -195,8 +195,8 @@ function Sonification() {
     }
     this.setWeekProgress = function(progress) {
 		try {
-			if (audio && audio.ready) {
-				audio.updateTime(progress*7*24);
+			if (audiom && audiom.ready) {
+				audiom.updateTime(progress*7*24);
 			}
 		} catch(e) {
 		}
@@ -216,8 +216,8 @@ function Sonification() {
         var type = 3-range; //square, saw, etc.
         //console.log("Volume: "+vol+" note: "+(offset+note));
 	try {
-		if (audio && audio.ready) {
-			audio.ping(offset+note, vol/3, type);
+		if (audiom && audiom.ready) {
+			audiom.ping(offset+note, vol/3, type);
 		}
 	} catch(e) {
 	}
@@ -235,8 +235,8 @@ function Sonification() {
         var type = 3-range; //square, saw, etc.
         //console.log("offset: "+offset+" for range: "+range+" and type: "+type);
 		try {
-			if (audio && audio.ready) {
-				audio.ping(offset+note, Math.sqrt(vel), type);
+			if (audiom && audiom.ready) {
+				audiom.ping(offset+note, Math.sqrt(vel), type);
 			}
 		} catch (e) {
 		}
@@ -290,7 +290,8 @@ function toggleMute() {
 
 var sonification = new Sonification();
 try {
-	var audio = new Audio();
+        //console.log("Making new audio");
+	var audiom = new Audiom();
 	//audio.turnOnOff(1);
 	hasaudio = true;
 } catch (e) {

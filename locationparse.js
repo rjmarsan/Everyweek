@@ -394,7 +394,8 @@ History.prototype.findBestBoundingBox = function(threshold) {
 	bestindex = i;
       }
     }
-    passed.push(boxes[i]);
+    passed = [];
+    passed.push(boxes[bestindex]);
   }
   this.boxes = boxes;
   this.results = results;
