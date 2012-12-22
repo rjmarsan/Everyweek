@@ -163,6 +163,7 @@ function Sonification() {
 				audiom.turnOnOff(1);
 			}
 		} catch (e) {
+		  // console.log(e);
 
 		}
     };

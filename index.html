@@ -148,7 +148,7 @@
 	}
 	#nolatitude {
 		top: 50%;
-		margin-top: -30px;
+		margin-top: -60px;
 	}
 	.right {
 		display: block;
@@ -259,6 +259,8 @@ function getHistoryUntil(token, until, accumulated, progress, finished) {
     } else {
       finished(accumulated);
     }
+  }).error(function() {
+   finished([]); 
   });
 }
 
@@ -1052,8 +1054,9 @@ function getDayText(int day) {
 				  </p>
 				</div>
 				<div id="nolatitude" class="hover">
+				  <h1>There Is No Data</h1>
 				  <p>
-				  Sorry, Google Latitude has no location history for you. Try the <a href="javascript:startDemo()">demo</a> instead?
+				  Google Latitude has no location history for you. Try the <a href="javascript:startDemo()">demo</a> instead?
 				  </p>
 				</div>
 				<div id="endcard" class="hover">
@@ -1078,17 +1081,17 @@ function getDayText(int day) {
 	    	</div>
 		<div id="text">
 			<div class="right" id="volume"> <a id="volume-button" href="javascript:toggleMute()">Mute</a></div>
-			<h1 id="title">EveryWeek Visualization</h1>
+			<h1 id="title">EveryWeek</h1>
 			<!--<div id="screenshot"> <a href="javascript:snapshot()">take a screenshot</a> </div> -->
 			<div id="description" class="clear">
 			  <p>
-			    See and Listen to your weekly location habits. Log in using google latitude to see the patterns of places you go with the patterns of when you're active.
+			    See and Listen to your weekly habits. Log in using Google Latitude to see the patterns of places you go with the patterns of when you're active.
 			  </p>
 			  <p>
 			    <img src="example.png">
 			  </p>
 			  <p>
-			    Hints - Circles expand around places you often visit. Lines form across places you move. Past weeks are overlayed behind the current week. The bottom bar shows an aggregate of how active you are per hour per week. The ocean noise corresponds to the time of day, the synth pitch is a function of the current week, and the position on the screen.
+			  Hints - Circles expand around places you often visit. Lines form across places you move. Past weeks are overlayed behind the current week. The bottom bar shows an aggregate of how active you are per hour per week. The ocean noise corresponds to the time of day, the synth pitch is a function of the current week, and the position on the screen. <a href="everyweek.pdf">Read More</a>
 			  </p>
 			  <p>
 			    Built with <a href="http://processing.org" title="Processing">Processing</a>,
