@@ -121,6 +121,9 @@
 	#volume {
 	  margin-bottom: 15px;
 	}
+	#audiounavailable {
+	  display: none;
+	}
 	.hover {
 		display: none;
 		position: absolute;
@@ -203,11 +206,19 @@ function startDemo() {
   demo();
 }
 
+function checkAudio() {
+  if (!hasaudio) {
+    $("#audiounavailable").show();
+    $("#volume-button").css("opacity","0.0");
+  }
+}
+
 function showErrorScreen() {
   $("#nolatitude").fadeIn();
 }
 
 $(function() {
+  checkAudio();
   $("#login").fadeIn();
   initGO2();
   //gethistory("ya29.AHES6ZQHcOBwkl3unZ1UkS4yPVCIC03uFMjeHGAgyDB8VAZgaM1Z1Q");
@@ -1052,6 +1063,9 @@ function getDayText(int day) {
 				  <a href="javascript:startLogin()">Use Google Latitude</a> to start, check out the 
 				  <a href="javascript:startDemo()">Demo</a>, or <a href="javascript:readMore()">read more</a>
 				  </p>
+				  <p id="audiounavailable">
+				    (audio unavailable)
+				  </p>
 				</div>
 				<div id="nolatitude" class="hover">
 				  <h1>There Is No Data</h1>
@@ -1097,7 +1111,9 @@ function getDayText(int day) {
 			    Built with <a href="http://processing.org" title="Processing">Processing</a>,
 			    <a href="http://processingjs.org" title="Processing.js">Processing.js</a>,
 			    and <a href="http://oampo.github.com/Audiolet/" title="Audiolet.js">Audiolet.js</a>
-			    <br>
+			    <br/>
+			    Works best in the latest versions of Chrome and Firefox. Audio will not work in IE.
+			    <br/>
 			    Written by <a href="http://rj.io">RJ Marsan</a> with help from <a href="http://jessicametro.com">Jessica Metro</a>
 			  </p>
 			</div>
