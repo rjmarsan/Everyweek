@@ -65,9 +65,9 @@ if(!Worker || !hasProto())
 		{
 			try
 			{
-				if ( "function" == typeof onmessage )
+				if ( "function" == typeof asdf )
 				{
-					onmessage({ "data" : __text });
+					asdf({ "data" : __text });
 				}
 				return true ;
 			}

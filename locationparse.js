@@ -3,7 +3,14 @@ self.onmessage= function(event) {
 	p.width = event.data.width;
 	p.height = event.data.height;
 	parse(event.data.data);
-}
+};
+asdf = function(event) {
+	p = {};
+	p.width = event.data.width;
+	p.height = event.data.height;
+	parse(event.data.data);
+
+};
 function floor(x) {
   return Math.floor(x);
 }
@@ -54,7 +61,7 @@ var parse = function(data) {
   data.g_lon = bestbox.r;
   data.g_lat_scale = (bestbox.b-bestbox.t);
   data.g_lat = bestbox.t;
-  self.postMessage(data);
+  postMessage(data);
 };
 
 function processAll(data) {
