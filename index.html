@@ -19,7 +19,7 @@
 	body {
 	  background-color: #000; color: #888; line-height: normal;
 	  font-family: Lucida Grande, Lucida Sans, Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
-	  font-family: 'Nixie One', cursive;
+	  font-family: 'Nixie One', sans-serif;
 	  font-size: 1em; font-weight: normal; text-decoration: none;
 	  line-height: 1.5em;
 	  margin: 0;
@@ -35,7 +35,7 @@
 		border-bottom: 1px solid #444;
 	}
 	h1 {
-		font-family: 'Nixie One', cursive;
+		font-family: 'Nixie One', sans-serif;
 		width: 100%; letter-spacing: 0.1em;
 		margin-bottom: 1em; font-size: 1.6em;
 	}
@@ -43,6 +43,7 @@
 	  color: #999999;
 	}
 	#canvasholder {
+	  min-height: 300px;
 	  position: relative;
 	}
 
@@ -90,8 +91,8 @@
 	    width: 500px;
 	}
 	#spinner {
-	  width: 40px;
-	  height: 40px;
+	  width: 0px;
+	  height: 0px;
 	  margin: 0 auto;
 	}
 
@@ -137,8 +138,9 @@
 		height: 220px;
 		margin-top: -100px;
 	}
-	#endcard-waiting {
-		padding-top: 85px;
+	#spinner-hover {
+		top: 50%;
+		margin-top: -40px;
 	}
 	#endcard-fallback {
 	  padding-top: 85px;
@@ -163,7 +165,9 @@
 	}
 		</style>
 		<!--[if lt IE 9]>
-			<script type="text/javascript">alert("Your browser does not support the canvas tag.");</script>
+		<![endif]-->
+		<!--[if lt IE 10]>
+			<script type="text/javascript" src="worker.js"></script>
 		<![endif]-->
 		<script src="jquery.js" type="text/javascript"></script>
 		<script src="jquery.scrollTo.min.js" type="text/javascript"></script>
@@ -277,9 +281,11 @@ function getHistoryUntil(token, until, accumulated, progress, finished) {
 
 function demo() {
   //jQuery.getJSON("latitude.json",function(data) {
+  makeSpinner();
   jQuery.getJSON("test.json",function(data) {
   //jQuery.getJSON("firstbatch.json",function(data) {
     data.data.items.reverse();
+    hideSpinner();
     parse(data.data.items);
   });
 }
@@ -290,7 +296,6 @@ function finished() {
 
   makeSpinner();
   $("#endcard").fadeIn();
-  $("#endcard-waiting").fadeIn();
   handleUpload();
 }
 
@@ -313,7 +318,15 @@ function makeSpinner() {
     left: 'auto' // Left position relative to parent in px
   };
   var target = document.getElementById('spinner');
-  var spinner = new Spinner(opts).spin(target);
+  spinner = new Spinner(opts).spin(target);
+  $("#spinner-hover").fadeIn();
+}
+
+function hideSpinner() {
+  $("#spinner-hover").hide();
+  //function() {
+    spinner.stop();
+  //});
 }
 
 function handleUpload() {
@@ -322,10 +335,12 @@ function handleUpload() {
     if (event.data.isdone) {
       if (event.data.failed) {
 	$("#endcard-fallback").fadeIn();
-	$("#endcard-waiting").hide();
+	hideSpinner();
+	$("#spinner-hover").hide();
       } else {
 	$("#endcard-share").fadeIn();
-	$("#endcard-waiting").hide();
+	hideSpinner();
+	$("#spinner-hover").hide();
       }
     }
   }, false);
@@ -607,7 +622,7 @@ History.prototype.isInRange = function() {
 
 
 		</script>
-		<script src="processing.js" type="text/javascript"></script>
+		<script src="processing-1.4.1.min.js" type="text/javascript"></script>
 		<script type="text/processing" data-processing-target="location1">
 
 
@@ -626,7 +641,7 @@ Time of the week indication to show when through the week it's at
 ******/
 
 
-/* @pjs font="http://themes.googleusercontent.com/static/fonts/nixieone/v4/gQ0PT3rPU_Et2ExNz-ahmrO3LdcAZYWl9Si6vvxL-qU.woff" */
+/* @pjs font="NixieOne.otf" */
 
 
 /** globals **/
@@ -719,7 +734,7 @@ void setup() {
   me_secondary.background(250);
   me_secondary.endDraw();
   me_graphics = createGraphics(width,height, P2D);
-  font = loadFont("Nixie One");
+  font = loadFont("NixieOne.otf");
   textFont(font, font_size*mscale);
   max_weeks = 1;
   setupData();
@@ -970,10 +985,12 @@ void drawTimeline(boolean prettyup) {
 
 
 
+  pushStyle();
   float spaceh = bottom_spacing*mscale;
   float spacing = width/7;
   fill(othercolor, 150);
   textAlign(RIGHT,BOTTOM);
+  textFont(font, font_size*mscale);
   if (prettyup) {
     long start = new Number(weektimelines[0].history[0].timestampMs);
     History endweek = weektimelines[weektimelines.length-1];
@@ -983,6 +1000,7 @@ void drawTimeline(boolean prettyup) {
     text(day+ " - Week "+min(max_weeks, weektimelines.length),width-35*mscale,height-spaceh-10*mscale);
     //println("::: = "+getDayText(nowdate.getDay())+" at "+nowdate.toTimeString());
   }
+  popStyle();
 
 
   noStroke();
@@ -1066,6 +1084,9 @@ function getDayText(int day) {
 				  <p id="audiounavailable">
 				    (audio unavailable)
 				  </p>
+				    <!--[if lt IE 10]>
+				      <p> Internet Explorer 9 and lower is not supported. Try <a href="https://www.google.com/chrome/">Chrome</a>.</p>
+				    <![endif]-->
 				</div>
 				<div id="nolatitude" class="hover">
 				  <h1>There Is No Data</h1>
@@ -1088,9 +1109,9 @@ function getDayText(int day) {
 				  <div id="endcard-fallback">
 				    <p> <a href="javascript:startAgain()">Again</a> &nbsp; &nbsp; &nbsp; &nbsp; <a href="javascript:snapshot()">Download</a></p>
 				  </div>
-				  <div id="endcard-waiting">
-				    <div id="spinner"></div>
-				  </div>
+				</div>
+				<div id="spinner-hover" class="hover">
+				  <div id="spinner"></div>
 				</div>
 	    	</div>
 		<div id="text">
@@ -1112,7 +1133,7 @@ function getDayText(int day) {
 			    <a href="http://processingjs.org" title="Processing.js">Processing.js</a>,
 			    and <a href="http://oampo.github.com/Audiolet/" title="Audiolet.js">Audiolet.js</a>
 			    <br/>
-			    Works best in the latest versions of Chrome and Firefox. Audio will not work in IE.
+			    Works best in the latest versions of Chrome and Firefox. IE doesn't work prior to IE 10.
 			    <br/>
 			    Written by <a href="http://rj.io">RJ Marsan</a> with help from <a href="http://jessicametro.com">Jessica Metro</a>
 			  </p>
