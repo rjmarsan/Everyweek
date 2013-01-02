@@ -21,6 +21,8 @@
 	  font-family: Lucida Grande, Lucida Sans, Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
 	  font-family: 'Nixie One', sans-serif;
 	  font-size: 1em; font-weight: normal; text-decoration: none;
+	  -webkit-font-smoothing: antialiased;
+	  text-rendering: optimizeLegibility;
 	  line-height: 1.5em;
 	  margin: 0;
 	  padding: 0;
@@ -630,17 +632,6 @@ History.prototype.isInRange = function() {
 
 
 
-/*******
-THE TODO
-
-DONE /getStartOfWeek so they all start on time!
-
-make week markers into TRAILS so they don't zip by into infinity
-Time of the week indication to show when through the week it's at
-
-******/
-
-
 /* @pjs font="NixieOne.otf" */
 
 
@@ -734,7 +725,9 @@ void setup() {
   me_secondary.background(250);
   me_secondary.endDraw();
   me_graphics = createGraphics(width,height, P2D);
-  font = loadFont("NixieOne.otf");
+  //font = loadFont("NixieOne.otf");
+  font = createFont("NixieOne.otf", font_size*mscale);
+  console.log(font);
   textFont(font, font_size*mscale);
   max_weeks = 1;
   setupData();
