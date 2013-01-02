@@ -18,14 +18,15 @@
 		<style type="text/css">
 	body {
 	  background-color: #000; color: #888; line-height: normal;
-	  font-family: Lucida Grande, Lucida Sans, Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
-	  font-family: 'Nixie One', sans-serif;
+	  font-family: 'Nixie One', Lucida Grande, Lucida Sans, Helvetica Neue, sans-serif;
 	  font-size: 1em; font-weight: normal; text-decoration: none;
 	  -webkit-font-smoothing: antialiased;
-	  text-rendering: optimizeLegibility;
 	  line-height: 1.5em;
 	  margin: 0;
 	  padding: 0;
+	}
+	p  {
+	  -webkit-text-stroke-width: 0.25px;
 	}
 	a img { 
 		border: 0px solid transparent;
@@ -168,8 +169,8 @@
 		</style>
 		<!--[if lt IE 9]>
 		<![endif]-->
-		<!--[if lt IE 10]>
-			<script type="text/javascript" src="worker.js"></script>
+		<!--[if lte IE 10]>
+			<script src="worker.js" type="text/javascript"></script>
 		<![endif]-->
 		<script src="jquery.js" type="text/javascript"></script>
 		<script src="jquery.scrollTo.min.js" type="text/javascript"></script>
@@ -632,7 +633,7 @@ History.prototype.isInRange = function() {
 
 
 
-/* @pjs font="NixieOne.otf" */
+/* @pjs font="NixieOne.woff" */
 
 
 /** globals **/
@@ -726,8 +727,8 @@ void setup() {
   me_secondary.endDraw();
   me_graphics = createGraphics(width,height, P2D);
   //font = loadFont("NixieOne.otf");
-  font = createFont("NixieOne.otf", font_size*mscale);
-  console.log(font);
+  font = createFont("NixieOne.woff", font_size*mscale);
+  //console.log(font);
   textFont(font, font_size*mscale);
   max_weeks = 1;
   setupData();
