@@ -22,6 +22,7 @@ function hasProto() {
 	}
 }
 
+
 if(!Worker || !hasProto())
 {
 	var Worker = function ( scriptFile )
