@@ -347,9 +347,10 @@ function handleUpload() {
     }
   }, false);
   setTimeout(function() {
-    var link = uploadCanvas();
-    shareurl = link;
-    $(".yourlink").val(link);
+    var links = uploadCanvas();
+    shareurl = links[0];
+    imgurl = links[1];
+    $(".yourlink").val(shareurl);
   }, 200);
   $("#sharefb").click(shareOnFb);
   $("#sharegplus").click(shareOnGplus);
@@ -357,11 +358,14 @@ function handleUpload() {
 
 }
 var shareurl = "http://weeks.rj.io/s?i=customimage";
+var imgurl = "";
 var text="";
 function shareOnFb() {
   var encodedurl = encodeURI(shareurl);
+  var encodedimg = encodeURI(imgurl);
   var encodedtext = encodeURI(text);
-  var preparedurl = "http://www.facebook.com/sharer.php?u="+encodedurl+"&t="+encodedtext;
+  var preparedurl = "https://www.facebook.com/dialog/feed?%20app_id=316710418446944&%20link="+encodedurl+"&%20picture="+encodedimg+"&%20name=EveryWeek&%20description="+encodedtext+"&%20redirect_uri=http://weeks.rj.io"
+  //var preparedurl = "http://www.facebook.com/sharer.php?u="+encodedurl+"&t="+encodedtext;
   console.log("Going to :"+preparedurl);
   window.open(preparedurl, "fbWindow", "status=1,height=600,width=500,resizable=0" )
   return false;
@@ -657,20 +661,21 @@ window.snapshot = function() {
 
 window.uploadCanvas = function() {
   var data = {};
-  data.name = getRandomName();
+  data.pagename = getRandomName();
+  data.name = data.pagename+".png";
   data.canvas = externals.canvas.toDataURL("image/png");
   window.frames["uploadframe"].postMessage(data, "http://myweek.rj.io.s3.amazonaws.com");
-  return "http://myweek.rj.io/i/"+data.name;
+  return ["http://wk.rj.io/"+data.pagename,"http://myweek.rj.io/i/"+data.name];
 };
 
 window.getRandomName = function() {
   var out = "";
   var possible="1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
-  for (var i=0; i<10; i++) {
+  for (var i=0; i<12; i++) {
     var index = Math.floor(Math.random()*possible.length);
     out += possible.charAt(index);
   }
-  return out+".png";
+  return out;
 }
 
 window.again = function() {

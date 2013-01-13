@@ -1,6 +1,75 @@
 <!doctype html>
 <html>
 	<head>
-		<meta http-equiv="refresh" content="0; url=http://weeks.rj.io/"> 
+		<title>EveryWeek - Result</title>
+		<script>
+			var gohome = function() {
+				document.location = "http://weeks.rj.io";
+			};
+			var page = document.location.pathname.replace("/","");
+			if (!page || page == "index.html") {
+				gohome();
+			}
+
+		</script>
+		<link href='http://fonts.googleapis.com/css?family=Nixie+One' rel='stylesheet' type='text/css'>
+		<style>
+			body {
+			  background-color: #000; color: #888; line-height: normal;
+			  font-family: 'Nixie One', Lucida Grande, Lucida Sans, Helvetica Neue, sans-serif;
+			  font-size: 1em; font-weight: normal; text-decoration: none;
+			  -webkit-font-smoothing: antialiased;
+			  line-height: 1.5em;
+			  margin: 0;
+			  padding: 0;
+			}
+			p  {
+			  -webkit-text-stroke-width: 0.25px;
+			  padding: 10px 30px;
+			  text-align: center;
+			}
+			h1 {
+				text-align: center;
+			}
+			a, a:visited, a:link, a:hover {
+				text-decoration: none;
+				color: inherit;
+				color: #999;
+			}
+			a:hover, p a, p a:link, p a:visited {
+				color: #999;
+				padding-bottom: 4px;
+				border-bottom: 1px solid #999;
+			}
+			#container {
+				width: 100%;
+			}
+			img {
+				display: block;
+				margin: 0 auto;
+				max-width: 100%;
+			}
+			#errortext {
+				display: none;
+			}
+		</style>
 	</head>
+	<div id="container">
+		<h1><a href="http://weeks.rj.io/">EveryWeek</a></h1>
+		<img id="main" src="placeholder.png"/>
+		<p id="errortext">There doesn't seem to be any images with this name<br/>Want to <a href="http://weeks.rj.io">try EveryWeek</a> for yourself?</p>
+	</div>
+	<script>
+
+		ohnoerror = function() {
+			document.getElementById("errortext").style.display="block";
+			image.style.display="none";
+		};
+		var image = document.getElementById("main");
+		image.onerror = ohnoerror;
+		image.src="http://myweek.rj.io/i/"+page+".png";
+
+
+	</script>
+
 </html>
