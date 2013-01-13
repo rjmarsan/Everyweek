@@ -37,10 +37,16 @@
 		text-decoration: none;
 		border-bottom: 1px solid #444;
 	}
+	a:hover {
+		color: #aaa;
+		border-bottom: 1px solid #666;
+	}
 	h1 {
 		font-family: 'Nixie One', sans-serif;
+		font-family: 'Nixie One', Lucida Grande, Lucida Sans, Helvetica Neue, sans-serif;
 		width: 100%; letter-spacing: 0.1em;
 		margin-bottom: 1em; font-size: 1.6em;
+	        -webkit-font-smoothing: antialiased;
 	}
 	#content {
 	  color: #999999;
@@ -359,26 +365,32 @@ function handleUpload() {
 }
 var shareurl = "http://weeks.rj.io/s?i=customimage";
 var imgurl = "";
-var text="";
-function shareOnFb() {
+var title = "EveryWeek";
+var text="visualization and sonification of my location history";
+function fbUrl() {
   var encodedurl = encodeURI(shareurl);
   var encodedimg = encodeURI(imgurl);
+  var encodedtitle = encodeURI(title);
   var encodedtext = encodeURI(text);
-  var preparedurl = "https://www.facebook.com/dialog/feed?%20app_id=316710418446944&%20link="+encodedurl+"&%20picture="+encodedimg+"&%20name=EveryWeek&%20description="+encodedtext+"&%20redirect_uri=http://weeks.rj.io"
+  var preparedurl = "https://www.facebook.com/dialog/feed?%20app_id=316710418446944&%20link="+encodedurl+"&%20picture="+encodedimg+"&%20name="+encodedtitle+"&%20description="+encodedtext+"&%20redirect_uri=http://weeks.rj.io"
+  return preparedurl;
+}
+function shareOnFb() {
   //var preparedurl = "http://www.facebook.com/sharer.php?u="+encodedurl+"&t="+encodedtext;
+  var preparedurl = fbUrl();
   console.log("Going to :"+preparedurl);
-  window.open(preparedurl, "fbWindow", "status=1,height=600,width=500,resizable=0" )
+  window.open(preparedurl, "fbWindow", "status=1,height=600,width=700,resizable=0" )
   return false;
 }
 function shareOnGplus() {
   var encodedurl = encodeURI(shareurl);
-  var encodedtext = encodeURI(text);
+  var encodedtext = encodeURI(title+" - "+text);
   window.open("https://plus.google.com/share?url="+encodedurl, "twitterWindow", "status=1,height=600,width=500,resizable=0" )
   return false;
 }
 function shareOnTwitter() {
   var encodedurl = encodeURI(shareurl);
-  var encodedtext = encodeURI(text);
+  var encodedtext = encodeURI(title+" - "+text);
   window.open("https://twitter.com/intent/tweet?url="+encodedurl+"&text="+encodedtext+"&hashtags=everyweek", "twitterWindow", "status=1,height=600,width=500,resizable=0" )
   return false;
 }
