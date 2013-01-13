@@ -357,6 +357,8 @@ function handleUpload() {
     shareurl = links[0];
     imgurl = links[1];
     $(".yourlink").val(shareurl);
+    $(".yourlink").click(function() { $(this).select(); } );
+    //$(".yourlink").select();
   }, 200);
   $("#sharefb").click(shareOnFb);
   $("#sharegplus").click(shareOnGplus);
@@ -1120,7 +1122,7 @@ function getDayText(int day) {
 				  <div id="endcard-share">
 				    <h1>Share</h1>
 				    <p class="uploadstatus">
-				      <input type="text" class="yourlink">
+				      <input type="text" class="yourlink" readonly>
 				    </p>
 				    <p>
 				      <a href="http://facebook.com" id="sharefb"><img class="shareicon" src="facebook.png" alt="share on facebook"/></a>
